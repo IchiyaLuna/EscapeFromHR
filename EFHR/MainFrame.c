@@ -192,11 +192,11 @@ void SplashScreen(void) {
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+
+	char Dummy = _getch();
 }
 
 void StoryDescriptor(void) {
-
-	char Dummy = _getch();
 
 	system("cls");
 
@@ -221,8 +221,20 @@ void StoryDescriptor(void) {
 
 void PAC(void) {
 
-	puts("\n");
-	puts("¢º Press Any Key ¢¸");
+	for (int i = 0;; ++i) {
+
+		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
+		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+
+		CurPos(1, 4);
+		puts("¢º Press Any Key ¢¸");
+
+		if (_kbhit())break;
+
+		Sleep(500);
+	}
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 
 	char Dummy = _getch();
 }
