@@ -58,9 +58,9 @@ int main(void) {
 
 	SplashScreen();
 	
-	//StoryDescriptor();
+	StoryDescriptor();
 
-	//UserInfo();
+	UserInfo();
 	CityInfo();
 
 	GameInitialize();
@@ -76,12 +76,12 @@ int main(void) {
 
 		UserInput = _getch();
 
-		if (UserInput == 'x')return 0;
+		if (UserInput == 'x') break;
 
-		if (UserInput == 'a') --UserPosition;
-		if (UserInput == 'd') ++UserPosition;
+		else if (UserInput == 'a') --UserPosition;
+		else if (UserInput == 'd') ++UserPosition;
 
-		if (!GameState && UserInput == 'e') {
+		else if (!GameState && UserInput == 'e') {
 
 			if (OccupyState[UserPosition]) {
 
@@ -101,7 +101,7 @@ int main(void) {
 				--B.PowerLeft;
 			}
 		}
-		if (!GameState && UserInput == 't') {
+		else if (!GameState && UserInput == 't') {
 
 			if (OccupyState[UserPosition]) {
 
@@ -121,7 +121,7 @@ int main(void) {
 				--B.FactoryLeft;
 			}
 		}
-		if (!GameState && UserInput == 'm') {
+		else if (!GameState && UserInput == 'm') {
 
 			if (OccupyState[UserPosition]) {
 
@@ -148,8 +148,10 @@ int main(void) {
 		if (!IsBuildingError) SystemMessage(GameState);
 
 		if (UserPosition < 0)UserPosition = 0;
-		if (UserPosition > 11)UserPosition = 11;
+		else if (UserPosition > 11)UserPosition = 11;
 	}
+
+	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 지휘관님.");
 	return 0;
 }
 
@@ -274,6 +276,8 @@ void TypeAnimation(char toPrint[]) {
 
 void DialogDisplay(char toPrint[]) {
 
+	short StrLen = strlen(toPrint);
+
 	system("cls");
 
 	printf("┏");
@@ -286,9 +290,11 @@ void DialogDisplay(char toPrint[]) {
 
 	printf("━┛");
 
+	CurPos(strlen(toPrint) + 2, 1);
+	printf("┃");
+
 	CurPos(2, 1);
 	TypeAnimation(toPrint);
-	printf("┃");
 
 	CurPos(0, 2);
 
