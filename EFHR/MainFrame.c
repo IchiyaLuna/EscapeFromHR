@@ -26,6 +26,11 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
 
 void UserPrint(short UserPosition);
 
+void MakePower(short UserPosition);
+void MakeFactory(short UserPosition);
+void MakeResidence(short UserPosition);
+
+
 typedef struct {
 
 	char UserName[21];
@@ -43,20 +48,57 @@ int main(void) {
 
 	Buildings B = { .PowerLeft = 4,.FactoryLeft = 4,.ResidenceLeft = 4 };
 
-	short UserPosition;
+	short OccupyState[12] = { 0 };
+
+	short UserPosition = 0;
+	char UserInput;
 
 	SplashScreen();
 	
-	StoryDescriptor();
+	//StoryDescriptor();
 
-	UserInfo();
-	CityInfo();
+	//UserInfo();
+	//CityInfo();
 
 	GameInitialize();
 
 	AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
 
+	while (1) {
 
+		UserPrint(UserPosition);
+
+		UserInput = _getch();
+
+		if (UserInput == 'x')return 0;
+
+		if (UserInput == 'a') --UserPosition;
+		if (UserInput == 'd') ++UserPosition;
+
+		if (UserInput == 'e' && !OccupyState[UserPosition] && B.PowerLeft > 0) {
+
+			MakePower(UserPosition);
+			++OccupyState[UserPosition];
+			--B.PowerLeft;
+		}
+		if (UserInput == 't' && !OccupyState[UserPosition] && B.FactoryLeft > 0) {
+
+			MakeFactory(UserPosition);
+			++OccupyState[UserPosition];
+			--B.FactoryLeft;
+		}
+		if (UserInput == 'm' && !OccupyState[UserPosition] && B.ResidenceLeft > 0) {
+
+			MakeResidence(UserPosition);
+			++OccupyState[UserPosition];
+			--B.ResidenceLeft;
+		}
+
+		AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
+
+		if (UserPosition < 0)UserPosition = 0;
+		if (UserPosition > 11)UserPosition = 11;
+	}
 	return 0;
 }
 
@@ -81,28 +123,25 @@ void SplashScreen(void) {
 	puts("              #+#     #+#       #+# #+#        #+#     #+# #+#    #+#     #+#    ");
 	puts("          ########### ###       ### ###        ###     ###  ########      ###    ");
 
-	CurPos(30, 17);
-
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-	puts("▶ Press Any Key to Start ◀");
-
-	char Dummy = _getch();
-
-	for (int i = 0; i < 5; ++i) {
-		
-		CurPos(30, 17);
+	for (int i = 0;; ++i) {
 
 		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 0);
 		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
-		puts("▶ 로딩중... 기다려주세요 ◀ ");
 
-		Sleep(250);
+		CurPos(30, 17);
+		puts("▶ Press Any Key to Start ◀");
+
+		if (_kbhit())break;
+
+		Sleep(500);
 	}
 
-
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
 void StoryDescriptor(void) {
+
+	char Dummy = _getch();
 
 	system("cls");
 
@@ -129,6 +168,7 @@ void PAC(void) {
 
 	puts("\n");
 	puts("▶ Press Any Key ◀");
+
 	char Dummy = _getch();
 }
 
@@ -265,15 +305,16 @@ void GameInitialize(void) {
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"); CurPos(1, 19);
 	printf("┏━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓"); CurPos(1, 20);
 	printf("┃ 이  동┃ 왼쪽 : a 오른쪽 : d┃ 게임 종료 : x┃"); CurPos(1, 21);
-	printf("┗━━━━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛"); CurPos(50, 0);
-
-	printf("┏━━━━━━━━━━━━━┓"); CurPos(50, 1);
-	for (short i = 2; i < 22; ++i) {
-		printf("┃ aaaaaaaaaaaa┃"); CurPos(50, i);
-	}
-	printf("┗━━━━━━━━━━━━━┛");
+	printf("┗━━━━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛"); 
 
 	BuildingHeight();
+
+	CurPos(50, 0);
+	printf("┏━━━━━━━━━━━━━┓"); CurPos(50, 1);
+	for (short i = 2; i < 22; ++i) {
+		printf("┃             ┃"); CurPos(50, i);
+	}
+	printf("┗━━━━━━━━━━━━━┛");
 }
 
 void BuildingHeight(void) {
@@ -289,5 +330,52 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 	CurPos(34, 1);
 	printf("%d", AvailPower); CurPos(34, 3);
 	printf("%d", AvailFactory); CurPos(34, 5);
-	printf("%d", AvailResidence); CurPos(0, 23);
+	printf("%d", AvailResidence);
+}
+
+void UserPrint(short UserPosition) {
+
+
+	for (short i = 0; i < 12; ++i) {
+		
+		CurPos(52 + i, 22);
+
+		if (i == UserPosition) putchar('*');
+		else putchar(' ');
+	}
+
+	CurPos(0, 23);
+}
+
+void MakePower(short UserPosition) {
+
+	for (short i = 20; i > 20 - PowerHeight; --i) {
+	
+		CurPos(52 + UserPosition, i);
+		putchar('e');
+	}
+
+	CurPos(0, 23);
+}
+
+void MakeFactory(short UserPosition) {
+
+	for (short i = 20; i > 20 - FactoryHeight; --i) {
+
+		CurPos(52 + UserPosition, i);
+		putchar('t');
+	}
+
+	CurPos(0, 23);
+}
+
+void MakeResidence(short UserPosition) {
+
+	for (short i = 20; i > 20 - ResidenceHeight; --i) {
+
+		CurPos(52 + UserPosition, i);
+		putchar('m');
+	}
+
+	CurPos(0, 23);
 }
