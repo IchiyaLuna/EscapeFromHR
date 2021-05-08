@@ -12,6 +12,7 @@ void StoryDescriptor(void);
 
 void PAC(void);
 void CurPos(short x, short y);
+void CursorView(short show);
 void K_Putchar(char toPrint[], short index);
 
 void TypeAnimation(char toPrint[]);
@@ -154,6 +155,8 @@ int main(void) {
 
 void SplashScreen(void) {
 
+	CursorView(0);
+
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 
 	putchar('\n');
@@ -228,6 +231,18 @@ void CurPos(short x, short y) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
+void CursorView(short show){
+	HANDLE hConsole;
+	CONSOLE_CURSOR_INFO ConsoleCursor;
+
+	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	ConsoleCursor.bVisible = show;
+	ConsoleCursor.dwSize = 1;
+
+	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
+}
+
 void K_Putchar(char toPrint[], short index) {
 
 	putchar(toPrint[index]);
@@ -284,6 +299,8 @@ void UserInfo(void) {
 
 	system("cls");
 
+	CursorView(1);
+
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
 	printf("┃ 당신의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
@@ -305,6 +322,8 @@ void UserInfo(void) {
 void CityInfo(void) {
 
 	system("cls");
+
+	CursorView(1);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
 	printf("┃ 방어할 도시의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
@@ -329,6 +348,8 @@ void GameInitialize(void) {
 
 	system("cls");
 
+	CursorView(0);
+
 	CurPos(1, 0);
 	printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓"); CurPos(1, 1);
 	printf("┃ 발전소┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : e┃"); CurPos(1, 2);
@@ -348,9 +369,11 @@ void GameInitialize(void) {
 	printf("┃                                           ┃"); CurPos(1, 16);
 	printf("┃                                           ┃"); CurPos(1, 17);
 	printf("┃                                           ┃"); CurPos(1, 18);
-	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"); CurPos(1, 19);
-	printf("┏━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓"); CurPos(1, 20);
-	printf("┃ 이  동┃ 왼쪽 : a 오른쪽 : d┃ 게임 종료 : x┃"); CurPos(1, 21);
+	printf("┃                                           ┃"); CurPos(1, 19);
+	printf("┃                                           ┃"); CurPos(1, 20);
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"); CurPos(1, 21);
+	printf("┏━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓"); CurPos(1, 22);
+	printf("┃ 이  동┃ 왼쪽 : a 오른쪽 : d┃ 게임 종료 : x┃"); CurPos(1, 23);
 	printf("┗━━━━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛"); 
 
 	BuildingHeight();
@@ -360,6 +383,8 @@ void GameInitialize(void) {
 	for (short i = 2; i < 22; ++i) {
 		printf("┃             ┃"); CurPos(50, i);
 	}
+	printf("┣━━━━━━━━━━━━━┫"); CurPos(50, 22);
+	printf("┃             ┃"); CurPos(50, 23);
 	printf("┗━━━━━━━━━━━━━┛");
 }
 
@@ -374,9 +399,18 @@ void BuildingHeight(void) {
 void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 
 	CurPos(34, 1);
+
+	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	printf("%d", AvailPower); CurPos(34, 3);
+	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+
+	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	printf("%d", AvailFactory); CurPos(34, 5);
+	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
+
+	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	printf("%d", AvailResidence);
+	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 }
 
 void SystemMessage(short MessageType) {
@@ -417,7 +451,7 @@ void SystemMessage(short MessageType) {
 
 void UserPrint(short UserPosition) {
 
-
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
 	for (short i = 0; i < 12; ++i) {
 		
 		CurPos(52 + i, 22);
@@ -426,38 +460,45 @@ void UserPrint(short UserPosition) {
 		else putchar(' ');
 	}
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	CurPos(0, 23);
 }
 
 void MakePower(short UserPosition) {
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
 	for (short i = 20; i > 20 - PowerHeight; --i) {
 	
 		CurPos(52 + UserPosition, i);
 		putchar('e');
 	}
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	CurPos(0, 23);
 }
 
 void MakeFactory(short UserPosition) {
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
 	for (short i = 20; i > 20 - FactoryHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
 		putchar('t');
 	}
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	CurPos(0, 23);
 }
 
 void MakeResidence(short UserPosition) {
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
 	for (short i = 20; i > 20 - ResidenceHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
 		putchar('m');
 	}
 
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
 	CurPos(0, 23);
 }
