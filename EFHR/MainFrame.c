@@ -3,6 +3,10 @@
 #include <string.h>
 #include <Windows.h>
 
+#define PowerHeight 3
+#define FactoryHeight 3
+#define ResidenceHeight 3
+
 void SplashScreen(void);
 void StoryDescriptor(void);
 
@@ -16,15 +20,30 @@ void DialogDisplay(char toPrint[]);
 void UserInfo(void);
 void CityInfo(void);
 
-void AvailableBuilding(void);
+void GameInitialize(void);
+void BuildingHeight(void);
+void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
+
+void UserPrint(short UserPosition);
 
 typedef struct {
 
 	char UserName[21];
 	char CityName[21];
-}Info;
+}User;
+
+typedef struct {
+
+	int PowerLeft;
+	int FactoryLeft;
+	int ResidenceLeft;
+}Buildings;
 
 int main(void) {
+
+	Buildings B = { .PowerLeft = 4,.FactoryLeft = 4,.ResidenceLeft = 4 };
+
+	short UserPosition;
 
 	SplashScreen();
 	
@@ -32,6 +51,10 @@ int main(void) {
 
 	UserInfo();
 	CityInfo();
+
+	GameInitialize();
+
+	AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
 
 
 	return 0;
@@ -169,7 +192,7 @@ void DialogDisplay(char toPrint[]) {
 
 void UserInfo(void) {
 
-	Info i;
+	User U;
 
 	system("cls");
 
@@ -179,11 +202,11 @@ void UserInfo(void) {
 
 	CurPos(47, 1);
 
-	gets_s(i.UserName, sizeof(i.UserName));
+	gets_s(U.UserName, sizeof(U.UserName));
 
 	CurPos(1, 3);
 
-	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? (Y/N)", i.UserName);
+	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? (Y/N)", U.UserName);
 
 	char UserInput = _getch();
 
@@ -193,7 +216,7 @@ void UserInfo(void) {
 }
 void CityInfo(void) {
 
-	Info i;
+	User U;
 
 	system("cls");
 
@@ -203,11 +226,11 @@ void CityInfo(void) {
 
 	CurPos(54, 1);
 
-	gets_s(i.CityName, sizeof(i.CityName));
+	gets_s(U.CityName, sizeof(U.CityName));
 
 	CurPos(1, 3);
 
-	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? (Y/N)", i.CityName);
+	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? (Y/N)", U.CityName);
 
 	char UserInput = _getch();
 
@@ -216,7 +239,55 @@ void CityInfo(void) {
 	CityInfo();
 }
 
-void AvailableBuilding(void) {
+void GameInitialize(void) {
 
+	system("cls");
 
+	CurPos(1, 0);
+	printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓"); CurPos(1, 1);
+	printf("┃ 발전소┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : e┃"); CurPos(1, 2);
+	printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫"); CurPos(1, 3);
+	printf("┃ 공  장┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : t┃"); CurPos(1, 4);
+	printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫"); CurPos(1, 5);
+	printf("┃ 주거지┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : m┃"); CurPos(1, 6);
+	printf("┗━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━━━━━┻━━━━━━━━━┛"); CurPos(1, 7);
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"); CurPos(1, 8);
+	printf("┃                                           ┃"); CurPos(1, 9);
+	printf("┃                                           ┃"); CurPos(1, 10);
+	printf("┃                                           ┃"); CurPos(1, 11);
+	printf("┃                                           ┃"); CurPos(1, 12);
+	printf("┃           무언가 들어가는 공간            ┃"); CurPos(1, 13);
+	printf("┃                                           ┃"); CurPos(1, 14);
+	printf("┃                                           ┃"); CurPos(1, 15);
+	printf("┃                                           ┃"); CurPos(1, 16);
+	printf("┃                                           ┃"); CurPos(1, 17);
+	printf("┃                                           ┃"); CurPos(1, 18);
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"); CurPos(1, 19);
+	printf("┏━━━━━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓"); CurPos(1, 20);
+	printf("┃ 이  동┃ 왼쪽 : a 오른쪽 : d┃ 게임 종료 : x┃"); CurPos(1, 21);
+	printf("┗━━━━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛"); CurPos(50, 0);
+
+	printf("┏━━━━━━━━━━━━━┓"); CurPos(50, 1);
+	for (short i = 2; i < 22; ++i) {
+		printf("┃ aaaaaaaaaaaa┃"); CurPos(50, i);
+	}
+	printf("┗━━━━━━━━━━━━━┛");
+
+	BuildingHeight();
+}
+
+void BuildingHeight(void) {
+
+	CurPos(16, 1);
+	printf("%d", PowerHeight); CurPos(16, 3);
+	printf("%d", FactoryHeight); CurPos(16, 5);
+	printf("%d", ResidenceHeight);
+}
+
+void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
+
+	CurPos(34, 1);
+	printf("%d", AvailPower); CurPos(34, 3);
+	printf("%d", AvailFactory); CurPos(34, 5);
+	printf("%d", AvailResidence); CurPos(0, 23);
 }
