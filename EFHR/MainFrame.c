@@ -1,3 +1,12 @@
+/*
+2021 Yonsei Computer Programming Project (prof. Hyo Sang Lim)
+[Game - Hard Rain Impact]
+
+All code written by Sungha Choi
+
+All rights reserved...
+*/
+
 #include <stdio.h>
 #include <conio.h>
 #include <string.h>
@@ -55,6 +64,8 @@ int main(void) {
 	short UserPosition = 0;
 	short IsBuildingError = 0;
 	char UserInput;
+
+	system("title Hard Rain Impact v1.0");
 
 	SplashScreen();
 	
@@ -496,7 +507,7 @@ void MakePower(short UserPosition) {
 	for (short i = 20; i > 20 - PowerHeight; --i) {
 	
 		CurPos(52 + UserPosition, i);
-		putchar('e');
+		putchar('E');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
@@ -510,7 +521,7 @@ void MakeFactory(short UserPosition) {
 	for (short i = 20; i > 20 - FactoryHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
-		putchar('t');
+		putchar('T');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
@@ -524,7 +535,7 @@ void MakeResidence(short UserPosition) {
 	for (short i = 20; i > 20 - ResidenceHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
-		putchar('m');
+		putchar('M');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 15);
