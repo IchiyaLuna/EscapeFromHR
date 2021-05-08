@@ -52,6 +52,7 @@ int main(void) {
 	
 	short GameState = 0;
 	short UserPosition = 0;
+	short IsBuildingError = 0;
 	char UserInput;
 
 	SplashScreen();
@@ -68,6 +69,8 @@ int main(void) {
 
 	while (1) {
 
+		IsBuildingError = 0;
+
 		UserPrint(UserPosition);
 
 		UserInput = _getch();
@@ -77,29 +80,71 @@ int main(void) {
 		if (UserInput == 'a') --UserPosition;
 		if (UserInput == 'd') ++UserPosition;
 
-		if (UserInput == 'e' && !OccupyState[UserPosition] && B.PowerLeft > 0) {
+		if (!GameState && UserInput == 'e') {
 
-			MakePower(UserPosition);
-			++OccupyState[UserPosition];
-			--B.PowerLeft;
+			if (OccupyState[UserPosition]) {
+
+				SystemMessage(-1);
+				IsBuildingError = 1;
+			}
+			else if (!B.PowerLeft) {
+
+				SystemMessage(-2);
+				IsBuildingError = 1;
+			}
+
+			if (!IsBuildingError) {
+
+				MakePower(UserPosition);
+				++OccupyState[UserPosition];
+				--B.PowerLeft;
+			}
 		}
-		if (UserInput == 't' && !OccupyState[UserPosition] && B.FactoryLeft > 0) {
+		if (!GameState && UserInput == 't') {
 
-			MakeFactory(UserPosition);
-			++OccupyState[UserPosition];
-			--B.FactoryLeft;
+			if (OccupyState[UserPosition]) {
+
+				SystemMessage(-1);
+				IsBuildingError = 1;
+			}
+			else if (!B.FactoryLeft) {
+
+				SystemMessage(-2);
+				IsBuildingError = 1;
+			}
+
+			if (!IsBuildingError) {
+
+				MakeFactory(UserPosition);
+				++OccupyState[UserPosition];
+				--B.FactoryLeft;
+			}
 		}
-		if (UserInput == 'm' && !OccupyState[UserPosition] && B.ResidenceLeft > 0) {
+		if (!GameState && UserInput == 'm') {
 
-			MakeResidence(UserPosition);
-			++OccupyState[UserPosition];
-			--B.ResidenceLeft;
+			if (OccupyState[UserPosition]) {
+
+				SystemMessage(-1);
+				IsBuildingError = 1;
+			}
+			else if (!B.ResidenceLeft) {
+
+				SystemMessage(-2);
+				IsBuildingError = 1;
+			}
+
+			if (!IsBuildingError) {
+
+				MakeResidence(UserPosition);
+				++OccupyState[UserPosition];
+				--B.ResidenceLeft;
+			}
 		}
 
 		AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
 
 		if (!GameState && !B.PowerLeft && !B.FactoryLeft && !B.ResidenceLeft) ++GameState;
-		SystemMessage(GameState);
+		if (!IsBuildingError) SystemMessage(GameState);
 
 		if (UserPosition < 0)UserPosition = 0;
 		if (UserPosition > 11)UserPosition = 11;
@@ -351,6 +396,16 @@ void SystemMessage(short MessageType) {
 	case 1:
 
 		printf("%s 도시를 방어하라!", U.CityName);
+		break;
+
+	case -1:
+
+		printf("이미 건물을 지어진 공간입니다.");
+		break;
+
+	case -2:
+
+		printf("남은 건물이 없습니다.");
 		break;
 
 	default:
