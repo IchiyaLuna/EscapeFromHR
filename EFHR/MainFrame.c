@@ -23,6 +23,7 @@ void CityInfo(void);
 void GameInitialize(void);
 void BuildingHeight(void);
 void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
+void SystemMessage(short MessageType);
 
 void UserPrint(short UserPosition);
 
@@ -30,12 +31,11 @@ void MakePower(short UserPosition);
 void MakeFactory(short UserPosition);
 void MakeResidence(short UserPosition);
 
+struct User{
 
-typedef struct {
-
-	char UserName[21];
-	char CityName[21];
-}User;
+	char UserName[11];
+	char CityName[11];
+}U;
 
 typedef struct {
 
@@ -49,7 +49,8 @@ int main(void) {
 	Buildings B = { .PowerLeft = 4,.FactoryLeft = 4,.ResidenceLeft = 4 };
 
 	short OccupyState[12] = { 0 };
-
+	
+	short GameState = 0;
 	short UserPosition = 0;
 	char UserInput;
 
@@ -58,11 +59,12 @@ int main(void) {
 	//StoryDescriptor();
 
 	//UserInfo();
-	//CityInfo();
+	CityInfo();
 
 	GameInitialize();
 
 	AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
+	SystemMessage(GameState);
 
 	while (1) {
 
@@ -95,6 +97,9 @@ int main(void) {
 		}
 
 		AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
+
+		if (!GameState && !B.PowerLeft && !B.FactoryLeft && !B.ResidenceLeft) ++GameState;
+		SystemMessage(GameState);
 
 		if (UserPosition < 0)UserPosition = 0;
 		if (UserPosition > 11)UserPosition = 11;
@@ -232,15 +237,13 @@ void DialogDisplay(char toPrint[]) {
 
 void UserInfo(void) {
 
-	User U;
-
 	system("cls");
 
-	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
-	printf("┃ 당신의 이름은? (최대 한글 10자, 영문 20자) ┃\n");
-	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+	printf("┃ 당신의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
 
-	CurPos(47, 1);
+	CurPos(46, 1);
 
 	gets_s(U.UserName, sizeof(U.UserName));
 
@@ -256,15 +259,13 @@ void UserInfo(void) {
 }
 void CityInfo(void) {
 
-	User U;
-
 	system("cls");
 
-	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
-	printf("┃ 방어할 도시의 이름은? (최대 한글 10자, 영문 20자) ┃\n");
-	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
+	printf("┃ 방어할 도시의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
 
-	CurPos(54, 1);
+	CurPos(53, 1);
 
 	gets_s(U.CityName, sizeof(U.CityName));
 
@@ -292,9 +293,9 @@ void GameInitialize(void) {
 	printf("┃ 주거지┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : m┃"); CurPos(1, 6);
 	printf("┗━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━━━━━┻━━━━━━━━━┛"); CurPos(1, 7);
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"); CurPos(1, 8);
-	printf("┃                                           ┃"); CurPos(1, 9);
-	printf("┃                                           ┃"); CurPos(1, 10);
-	printf("┃                                           ┃"); CurPos(1, 11);
+	printf("┃ SYSTEM :                                  ┃"); CurPos(1, 9);
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"); CurPos(1, 10);
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"); CurPos(1, 11);
 	printf("┃                                           ┃"); CurPos(1, 12);
 	printf("┃           무언가 들어가는 공간            ┃"); CurPos(1, 13);
 	printf("┃                                           ┃"); CurPos(1, 14);
@@ -331,6 +332,32 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 	printf("%d", AvailPower); CurPos(34, 3);
 	printf("%d", AvailFactory); CurPos(34, 5);
 	printf("%d", AvailResidence);
+}
+
+void SystemMessage(short MessageType) {
+
+	CurPos(12, 8);
+	for (short i = 0; i < 33; ++i)putchar(' ');
+
+	CurPos(12, 8);
+
+	switch (MessageType) {
+	
+	case 0:
+
+		printf("건물 건설을 진행해주세요.");
+		break;
+
+	case 1:
+
+		printf("%s 도시를 방어하라!", U.CityName);
+		break;
+
+	default:
+
+		printf("Error, Someting Went Wrong");
+		break;
+	}
 }
 
 void UserPrint(short UserPosition) {
