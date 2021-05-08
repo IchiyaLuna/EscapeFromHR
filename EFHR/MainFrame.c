@@ -452,6 +452,7 @@ void SystemMessage(short MessageType) {
 void UserPrint(short UserPosition) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 11);
+
 	for (short i = 0; i < 12; ++i) {
 		
 		CurPos(52 + i, 22);
@@ -467,6 +468,7 @@ void UserPrint(short UserPosition) {
 void MakePower(short UserPosition) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
+
 	for (short i = 20; i > 20 - PowerHeight; --i) {
 	
 		CurPos(52 + UserPosition, i);
@@ -480,6 +482,7 @@ void MakePower(short UserPosition) {
 void MakeFactory(short UserPosition) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 12);
+
 	for (short i = 20; i > 20 - FactoryHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
@@ -493,6 +496,7 @@ void MakeFactory(short UserPosition) {
 void MakeResidence(short UserPosition) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 10);
+
 	for (short i = 20; i > 20 - ResidenceHeight; --i) {
 
 		CurPos(52 + UserPosition, i);
