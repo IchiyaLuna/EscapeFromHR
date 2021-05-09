@@ -339,7 +339,7 @@ void UserInfo(void) {
 	CursorView(1);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
-	printf("┃ 당신의 이름은? (최대 영문 10자 한글 불가) ┃           ┃\n");
+	printf("┃ 당신의 이름은? (최대 영문 10자 공벡 불가) ┃           ┃\n");
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(46, 1);
@@ -350,7 +350,7 @@ void UserInfo(void) {
 
 		CursorView(0);
 		CurPos(1, 3);
-		printf("남은 글자 수 : %2d", 56 - curInfo.dwCursorPosition.X);
+		printf("남은 글자 수 : %2d                     ", 56 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
 		CursorView(1);
@@ -361,8 +361,21 @@ void UserInfo(void) {
 
 		if (curInfo.dwCursorPosition.X == 55 || Dummy == 13) {
 
-			strcpy_s(U.UserName, sizeof(U.UserName), StringBuffer);
-			break; 
+			if (StringBuffer[0] == 0) {
+
+				CurPos(1, 3);
+				printf("SYSTEM : 이름은 반드시 입력해야 합니다.");
+
+				CurPos(curInfo.dwCursorPosition.X, 1);
+				Index = 0;
+
+				Sleep(500);
+			}
+			else {
+			
+				strcpy_s(U.UserName, sizeof(U.UserName), StringBuffer);
+				break;
+			}
 		}
 
 		else if (Dummy == 8 && curInfo.dwCursorPosition.X > 46) {
@@ -406,7 +419,7 @@ void CityInfo(void) {
 	CursorView(1);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
-	printf("┃ 방어할 도시의 이름은? (최대 영문 10자 한글 불가) ┃           ┃\n");
+	printf("┃ 방어할 도시의 이름은? (최대 영문 10자 공백 불가) ┃           ┃\n");
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(53, 1);
@@ -417,7 +430,7 @@ void CityInfo(void) {
 
 		CursorView(0);
 		CurPos(1, 3);
-		printf("남은 글자 수 : %2d", 63 - curInfo.dwCursorPosition.X);
+		printf("남은 글자 수 : %2d                          ", 63 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
 		CursorView(1);
@@ -428,8 +441,21 @@ void CityInfo(void) {
 
 		if (curInfo.dwCursorPosition.X == 62 || Dummy == 13) {
 
-			strcpy_s(U.CityName, sizeof(U.CityName), StringBuffer);
-			break;
+			if (StringBuffer[0] == 0) {
+
+				CurPos(1, 3);
+				printf("SYSTEM : 도시 이름은 반드시 입력해야 합니다.");
+
+				CurPos(curInfo.dwCursorPosition.X, 1);
+				Index = 0;
+
+				Sleep(500);
+			}
+			else {
+
+				strcpy_s(U.CityName, sizeof(U.CityName), StringBuffer);
+				break;
+			}
 		}
 
 		else if (Dummy == 8 && curInfo.dwCursorPosition.X > 53) {
