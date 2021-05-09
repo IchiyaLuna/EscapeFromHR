@@ -69,7 +69,7 @@ int main(void) {
 
 	SplashScreen();
 	
-	StoryDescriptor();
+	//StoryDescriptor();
 
 	UserInfo();
 	CityInfo();
@@ -256,7 +256,7 @@ void CurPos(short x, short y) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
 
-void CursorView(short show){
+void CursorView(short show) {
 	HANDLE hConsole;
 	CONSOLE_CURSOR_INFO ConsoleCursor;
 
@@ -299,7 +299,7 @@ void TypeAnimation(char toPrint[]) {
 
 void DialogDisplay(char toPrint[]) {
 
-	short StrLen = strlen(toPrint);
+	short StrLen = (short)strlen(toPrint);
 
 	system("cls");
 
@@ -313,7 +313,7 @@ void DialogDisplay(char toPrint[]) {
 
 	printf("━┛");
 
-	CurPos(strlen(toPrint) + 2, 1);
+	CurPos(StrLen + 2, 1);
 	printf("┃");
 
 	CurPos(2, 1);
@@ -326,23 +326,66 @@ void DialogDisplay(char toPrint[]) {
 
 void UserInfo(void) {
 
+	CONSOLE_SCREEN_BUFFER_INFO curInfo;
+
+	char Dummy;
+	char UserInput;
+	char StringBuffer[11] = { 0 };
+
+	int Index = 0;
+
 	system("cls");
 
 	CursorView(1);
 
-	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
-	printf("┃ 당신의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
-	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
+	printf("┃ 당신의 이름은? (최대 영문 10자 한글 불가) ┃           ┃\n");
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(46, 1);
 
-	gets_s(U.UserName, sizeof(U.UserName));
+	while (1) {
+
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
+
+		CursorView(0);
+		CurPos(1, 3);
+		printf("남은 글자 수 : %2d", 56 - curInfo.dwCursorPosition.X);
+
+		CurPos(curInfo.dwCursorPosition.X, 1);
+		CursorView(1);
+
+		Dummy = _getche();
+		if (Dummy > 32) StringBuffer[Index] = Dummy;
+		++Index;
+
+		if (curInfo.dwCursorPosition.X == 55 || Dummy == 13) {
+
+			strcpy_s(U.UserName, sizeof(U.UserName), StringBuffer);
+			break; 
+		}
+
+		else if (Dummy == 8 && curInfo.dwCursorPosition.X > 46) {
+
+			Index -= 2;
+			if (Index > -1) StringBuffer[Index] = 0;
+			putchar(' ');
+			CurPos(curInfo.dwCursorPosition.X - 1, 1);
+		}
+		else if (Dummy == 8 && curInfo.dwCursorPosition.X == 46) {
+
+			Index = 0;
+			CurPos(curInfo.dwCursorPosition.X, 1);
+		}
+
+		Sleep(50);
+	}
 
 	CurPos(1, 3);
 
 	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? (Y/N)", U.UserName);
 
-	char UserInput = _getch();
+	UserInput = _getch();
 
 	if (UserInput == 'Y' || UserInput == 'y') return;
 
@@ -350,23 +393,66 @@ void UserInfo(void) {
 }
 void CityInfo(void) {
 
+	CONSOLE_SCREEN_BUFFER_INFO curInfo;
+
+	char Dummy;
+	char UserInput;
+	char StringBuffer[11] = { 0 };
+
+	int Index = 0;
+
 	system("cls");
 
 	CursorView(1);
 
-	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n");
-	printf("┃ 방어할 도시의 이름은? (최대 한글 5자, 영문 10자) ┃\n");
-	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛\n");
+	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
+	printf("┃ 방어할 도시의 이름은? (최대 영문 10자 한글 불가) ┃           ┃\n");
+	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(53, 1);
 
-	gets_s(U.CityName, sizeof(U.CityName));
+	while (1) {
+
+		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
+
+		CursorView(0);
+		CurPos(1, 3);
+		printf("남은 글자 수 : %2d", 63 - curInfo.dwCursorPosition.X);
+
+		CurPos(curInfo.dwCursorPosition.X, 1);
+		CursorView(1);
+
+		Dummy = _getche();
+		if (Dummy > 32) StringBuffer[Index] = Dummy;
+		++Index;
+
+		if (curInfo.dwCursorPosition.X == 62 || Dummy == 13) {
+
+			strcpy_s(U.CityName, sizeof(U.CityName), StringBuffer);
+			break;
+		}
+
+		else if (Dummy == 8 && curInfo.dwCursorPosition.X > 53) {
+
+			Index -= 2;
+			if(Index > -1) StringBuffer[Index] = 0;
+			putchar(' ');
+			CurPos(curInfo.dwCursorPosition.X - 1, 1);
+		}
+		else if (Dummy == 8 && curInfo.dwCursorPosition.X == 53) {
+
+			Index = 0;
+			CurPos(curInfo.dwCursorPosition.X, 1);
+		}
+
+		Sleep(50);
+	}
 
 	CurPos(1, 3);
 
 	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? (Y/N)", U.CityName);
 
-	char UserInput = _getch();
+	UserInput = _getch();
 
 	if (UserInput == 'Y' || UserInput == 'y') return;
 
