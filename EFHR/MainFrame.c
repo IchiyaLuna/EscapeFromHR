@@ -71,7 +71,7 @@ int main(void) {
 	
 	//StoryDescriptor();
 
-	UserInfo();
+	//UserInfo();
 	CityInfo();
 
 	GameInitialize();
@@ -158,11 +158,11 @@ int main(void) {
 		if (!GameState && !B.PowerLeft && !B.FactoryLeft && !B.ResidenceLeft) ++GameState;
 		if (!IsBuildingError) SystemMessage(GameState);
 
-		if (UserPosition < 0)UserPosition = 0;
-		else if (UserPosition > 11)UserPosition = 11;
+		if (UserPosition < 0) UserPosition = 0;
+		else if (UserPosition > 11) UserPosition = 11;
 	}
 
-	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 지휘관님.");
+	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 사령관님.");
 	return 0;
 }
 
@@ -255,7 +255,6 @@ void CurPos(short x, short y) {
 	COORD Pos = { x, y };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
 }
-
 void CursorView(short show) {
 	HANDLE hConsole;
 	CONSOLE_CURSOR_INFO ConsoleCursor;
@@ -339,7 +338,7 @@ void UserInfo(void) {
 	CursorView(1);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
-	printf("┃ 당신의 이름은? (최대 영문 10자 공벡 불가) ┃           ┃\n");
+	printf("┃ 당신의 이름은? (최대 영문 10자, 공백 불가)┃           ┃\n");
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(46, 1);
@@ -350,7 +349,7 @@ void UserInfo(void) {
 
 		CursorView(0);
 		CurPos(1, 3);
-		printf("남은 글자 수 : %2d                     ", 56 - curInfo.dwCursorPosition.X);
+		printf("남은 글자 수 : %-24d", 56 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
 		CursorView(1);
@@ -419,7 +418,7 @@ void CityInfo(void) {
 	CursorView(1);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
-	printf("┃ 방어할 도시의 이름은? (최대 영문 10자 공백 불가) ┃           ┃\n");
+	printf("┃ 방어할 도시의 이름은? (최대 영문 10자, 공백 불가)┃           ┃\n");
 	printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━┛\n");
 
 	CurPos(53, 1);
@@ -430,7 +429,7 @@ void CityInfo(void) {
 
 		CursorView(0);
 		CurPos(1, 3);
-		printf("남은 글자 수 : %2d                          ", 63 - curInfo.dwCursorPosition.X);
+		printf("남은 글자 수 : %-29d", 63 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
 		CursorView(1);
