@@ -55,7 +55,7 @@ void SplashScreen(void);
 void CharBlink(char toBlink, short show, short color);
 
 void GameSetup(void);
- 
+
 void StoryDescriptor(void);
 
 void PAC(void);
