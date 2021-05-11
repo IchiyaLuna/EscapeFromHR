@@ -189,6 +189,7 @@ int main(void) {
 	}
 
 	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 사령관님.");
+
 	return 0;
 }
 
