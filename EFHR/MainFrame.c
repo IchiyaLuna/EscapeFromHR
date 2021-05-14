@@ -51,6 +51,13 @@ typedef struct {
 	int ResidenceLeft;
 }Buildings;
 
+typedef struct {
+
+	int PowerHealth;
+	int FactoryHealth;
+	int ResidenceHealth;
+}Health;
+
 void SplashScreen(void);
 void CharBlink(char toBlink, short show, short color);
 
