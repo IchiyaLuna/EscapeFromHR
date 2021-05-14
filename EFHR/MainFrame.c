@@ -129,12 +129,12 @@ int main(void) {
 
 			if (OccupyState[UserPosition]) {
 
-				SystemMessage(-1);
+				SystemMessage(-2);
 				IsBuildingError = 1;
 			}
 			else if (!B.PowerLeft) {
 
-				SystemMessage(-2);
+				SystemMessage(-3);
 				IsBuildingError = 1;
 			}
 
@@ -706,12 +706,19 @@ void SystemMessage(short MessageType) {
 
 	case -1:
 
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("정말 이 위치에 건설하시겠습니까?");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		break;
+
+	case -2:
+
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("이미 건물을 지어진 공간입니다.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
-	case -2:
+	case -3:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("남은 건물이 없습니다.");
