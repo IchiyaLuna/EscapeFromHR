@@ -12,9 +12,9 @@ All rights reserved...
 #include <string.h>
 #include <Windows.h>
 
-#define PowerHeight 3
+#define PowerHeight 4
 #define FactoryHeight 3
-#define ResidenceHeight 3
+#define ResidenceHeight 2
 
 #define DialogLength 63
 
