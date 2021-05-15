@@ -18,6 +18,8 @@ All rights reserved...
 
 #define DialogLength 63
 
+enum { False, True };
+
 enum { 
 
 	Black, 
@@ -36,6 +38,15 @@ enum {
 	Violet, 
 	Yellow, 
 	White 
+};
+
+enum BuildingType
+{
+
+	Blank,
+	Power,
+	Factory,
+	Residence
 };
 
 struct User {
@@ -83,19 +94,20 @@ void SystemMessage(short MessageType);
 
 void UserPrint(short UserPosition);
 
+short BuildingBuilder(short UserPosition, short BuildingType);
 void MakePower(short UserPosition);
 void MakeFactory(short UserPosition);
 void MakeResidence(short UserPosition);
 
 int main(void) {
 
-	Buildings B = { .PowerLeft = 4,.FactoryLeft = 4,.ResidenceLeft = 4 };
+	Buildings B = { .PowerLeft = 4, .FactoryLeft = 4, .ResidenceLeft = 4 };
 
 	short OccupyState[12] = { 0 };
 	
 	short GameState = 0;
 	short UserPosition = 0;
-	short IsBuildingError = 0;
+	short IsBuildingError;
 	char UserInput;
 
 	system("title Hard Rain Impact v1.0");
@@ -114,7 +126,7 @@ int main(void) {
 
 	while (1) {
 
-		IsBuildingError = 0;
+		IsBuildingError = False;
 
 		UserPrint(UserPosition);
 
@@ -130,19 +142,21 @@ int main(void) {
 			if (OccupyState[UserPosition]) {
 
 				SystemMessage(-2);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 			else if (!B.PowerLeft) {
 
 				SystemMessage(-3);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				MakePower(UserPosition);
-				++OccupyState[UserPosition];
-				--B.PowerLeft;
+				if (BuildingBuilder(UserPosition, Power)) {
+
+					++OccupyState[UserPosition];
+					--B.PowerLeft;
+				}
 			}
 		}
 		else if (!GameState && UserInput == 't') {
@@ -150,19 +164,21 @@ int main(void) {
 			if (OccupyState[UserPosition]) {
 
 				SystemMessage(-1);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 			else if (!B.FactoryLeft) {
 
 				SystemMessage(-2);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				MakeFactory(UserPosition);
-				++OccupyState[UserPosition];
-				--B.FactoryLeft;
+				if (BuildingBuilder(UserPosition, Factory)) {
+
+					++OccupyState[UserPosition];
+						--B.FactoryLeft;
+				}
 			}
 		}
 		else if (!GameState && UserInput == 'm') {
@@ -170,19 +186,21 @@ int main(void) {
 			if (OccupyState[UserPosition]) {
 
 				SystemMessage(-1);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 			else if (!B.ResidenceLeft) {
 
 				SystemMessage(-2);
-				IsBuildingError = 1;
+				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				MakeResidence(UserPosition);
-				++OccupyState[UserPosition];
-				--B.ResidenceLeft;
+				if (BuildingBuilder(UserPosition, Residence)) {
+
+					++OccupyState[UserPosition];
+					--B.ResidenceLeft;
+				}
 			}
 		}
 
@@ -201,6 +219,8 @@ int main(void) {
 }
 
 void SplashScreen(void) {
+
+	system("mode con:cols=96 lines=24");
 
 	CursorView(0);
 
@@ -706,23 +726,31 @@ void SystemMessage(short MessageType) {
 
 	case -1:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
-		printf("정말 이 위치에 건설하시겠습니까?");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("이미 건물을 지어진 공간입니다.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
 	case -2:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-		printf("이미 건물을 지어진 공간입니다.");
+		printf("남은 건물이 없습니다.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
 	case -3:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-		printf("남은 건물이 없습니다.");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("건설하시려면 한 번 더 눌러주세요.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		break;
+
+	case -4:
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("취소되었습니다.");
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		Sleep(500);
 		break;
 
 	default:
@@ -748,6 +776,29 @@ void UserPrint(short UserPosition) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 	CurPos(0, 23);
+}
+
+short BuildingBuilder(short UserPosition, short BuildingType) {
+
+	char UserInput;
+
+	SystemMessage(-3);
+
+	UserInput = _getch();
+
+	if ((BuildingType == Power && UserInput == 'e') || 
+		(BuildingType == Factory && UserInput == 't') || 
+		(BuildingType == Residence && UserInput == 'm')) {
+
+		if (BuildingType == Power) MakePower(UserPosition);
+		else if (BuildingType == Factory) MakeFactory(UserPosition);
+		else if (BuildingType == Residence)MakeResidence(UserPosition);
+
+		return 1;
+	}
+
+	SystemMessage(-4);
+	return 0;
 }
 
 void MakePower(short UserPosition) {
