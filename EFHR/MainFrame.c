@@ -49,25 +49,46 @@ enum BuildingType
 	Residence
 };
 
-struct User {
+typedef struct {
 
 	char UserName[11];
 	char CityName[11];
-}U;
+}User;
 
 typedef struct {
 
-	int PowerLeft;
-	int FactoryLeft;
-	int ResidenceLeft;
+	short PowerLeft;
+	short FactoryLeft;
+	short ResidenceLeft;
 }Buildings;
 
 typedef struct {
 
-	int PowerHealth;
-	int FactoryHealth;
-	int ResidenceHealth;
+	short PowerHealth;
+	short FactoryHealth;
+	short ResidenceHealth;
 }Health;
+
+typedef struct {
+
+	int EnergyState;
+	int TechnologyState;
+	int CapitalState;
+}Resources;
+
+typedef struct {
+
+	User U;
+
+	short UserPosition;
+
+	Buildings B;
+
+	short OccupyState[12];
+	Health H[12];
+
+	Resources R;
+}City;
 
 void SplashScreen(void);
 void CharBlink(char toBlink, short show, short color);
@@ -84,8 +105,8 @@ void K_Putchar(char toPrint[], short index);
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
 
-void UserInfo(void);
-void CityInfo(void);
+void UserInfo(char UserName[]);
+void CityInfo(char CityName[]);
 
 void GameInitialize(void);
 void BuildingHeight(void);
@@ -101,12 +122,12 @@ void MakeResidence(short UserPosition);
 
 int main(void) {
 
-	Buildings B = { .PowerLeft = 4, .FactoryLeft = 4, .ResidenceLeft = 4 };
-
-	short OccupyState[12] = { 0 };
+	City C = { .UserPosition = 6,
+		.B.PowerLeft = 4, .B.FactoryLeft = 4, .B.ResidenceLeft = 4,
+		.OccupyState = { Blank }, 
+		.R.EnergyState = 0, .R.TechnologyState = 0, .R.CapitalState = 0 };
 	
 	short GameState = 0;
-	short UserPosition = 0;
 	short IsBuildingError;
 	char UserInput;
 
@@ -116,101 +137,101 @@ int main(void) {
 	
 	GameSetup();
 
-	UserInfo();
-	CityInfo();
+	UserInfo(C.U.UserName);
+	CityInfo(C.U.CityName);
 
 	GameInitialize();
 
-	AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
-	SystemMessage(GameState);
+	AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
+	SystemMessage(C.U.CityName, GameState);
 
 	while (1) {
 
 		IsBuildingError = False;
 
-		UserPrint(UserPosition);
+		UserPrint(C.UserPosition);
 
 		UserInput = _getch();
 
 		if (UserInput == 'x') break;
 
-		else if (UserInput == 'a') --UserPosition;
-		else if (UserInput == 'd') ++UserPosition;
+		else if (UserInput == 'a') --C.UserPosition;
+		else if (UserInput == 'd') ++C.UserPosition;
 
 		else if (!GameState && UserInput == 'e') {
 
-			if (OccupyState[UserPosition]) {
+			if (C.OccupyState[C.UserPosition]) {
 
-				SystemMessage(-2);
+				SystemMessage(C.U.CityName, -2);
 				IsBuildingError = True;
 			}
-			else if (!B.PowerLeft) {
+			else if (!C.B.PowerLeft) {
 
-				SystemMessage(-3);
+				SystemMessage(C.U.CityName, -3);
 				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				if (BuildingBuilder(UserPosition, Power)) {
+				if (BuildingBuilder(C.UserPosition, Power)) {
 
-					++OccupyState[UserPosition];
-					--B.PowerLeft;
+					++C.OccupyState[C.UserPosition];
+					--C.B.PowerLeft;
 				}
 			}
 		}
 		else if (!GameState && UserInput == 't') {
 
-			if (OccupyState[UserPosition]) {
+			if (C.OccupyState[C.UserPosition]) {
 
-				SystemMessage(-1);
+				SystemMessage(C.U.CityName, -1);
 				IsBuildingError = True;
 			}
-			else if (!B.FactoryLeft) {
+			else if (!C.B.FactoryLeft) {
 
-				SystemMessage(-2);
+				SystemMessage(C.U.CityName, -2);
 				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				if (BuildingBuilder(UserPosition, Factory)) {
+				if (BuildingBuilder(C.UserPosition, Factory)) {
 
-					++OccupyState[UserPosition];
-						--B.FactoryLeft;
+					++C.OccupyState[C.UserPosition];
+					--C.B.FactoryLeft;
 				}
 			}
 		}
 		else if (!GameState && UserInput == 'm') {
 
-			if (OccupyState[UserPosition]) {
+			if (C.OccupyState[C.UserPosition]) {
 
-				SystemMessage(-1);
+				SystemMessage(C.U.CityName, -1);
 				IsBuildingError = True;
 			}
-			else if (!B.ResidenceLeft) {
+			else if (!C.B.ResidenceLeft) {
 
-				SystemMessage(-2);
+				SystemMessage(C.U.CityName, -2);
 				IsBuildingError = True;
 			}
 
 			if (!IsBuildingError) {
 
-				if (BuildingBuilder(UserPosition, Residence)) {
+				if (BuildingBuilder(C.UserPosition, Residence)) {
 
-					++OccupyState[UserPosition];
-					--B.ResidenceLeft;
+					++C.OccupyState[C.UserPosition];
+					--C.B.ResidenceLeft;
 				}
 			}
 		}
 
-		AvailableBuilding(B.PowerLeft, B.FactoryLeft, B.ResidenceLeft);
+		AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
 
-		if (!GameState && !B.PowerLeft && !B.FactoryLeft && !B.ResidenceLeft) ++GameState;
-		if (!IsBuildingError) SystemMessage(GameState);
+		if (!GameState && !C.B.PowerLeft && !C.B.FactoryLeft && !C.B.ResidenceLeft) ++GameState;
+		if (!IsBuildingError) SystemMessage(C.U.CityName, GameState);
 
-		if (UserPosition < 0) UserPosition = 0;
-		else if (UserPosition > 11) UserPosition = 11;
+		if (C.UserPosition < 0) C.UserPosition = 0;
+		else if (C.UserPosition > 11) C.UserPosition = 11;
 	}
 
 	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 사령관님.");
@@ -464,7 +485,7 @@ void DialogDisplay(char toPrint[]) {
 	PAC();
 }
 
-void UserInfo(void) {
+void UserInfo(char UserName[]) {
 
 	CONSOLE_SCREEN_BUFFER_INFO curInfo;
 
@@ -513,7 +534,7 @@ void UserInfo(void) {
 			}
 			else {
 			
-				strcpy_s(U.UserName, sizeof(U.UserName), StringBuffer);
+				strcpy_s(UserName, sizeof(UserName), StringBuffer);
 				break;
 			}
 		}
@@ -538,16 +559,16 @@ void UserInfo(void) {
 
 	CurPos(1, 3);
 
-	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? [Y/N]", U.UserName);
+	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? [Y/N]", UserName);
 
 	UserInput = _getch();
 
 	if (UserInput == 'Y' || UserInput == 'y') return;
 
-	UserInfo();
+	UserInfo(UserName);
 }
 
-void CityInfo(void) {
+void CityInfo(char CityName[]) {
 
 	CONSOLE_SCREEN_BUFFER_INFO curInfo;
 
@@ -596,7 +617,7 @@ void CityInfo(void) {
 			}
 			else {
 
-				strcpy_s(U.CityName, sizeof(U.CityName), StringBuffer);
+				strcpy_s(CityName, sizeof(CityName), StringBuffer);
 				break;
 			}
 		}
@@ -621,13 +642,13 @@ void CityInfo(void) {
 
 	CurPos(1, 3);
 
-	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? [Y/N]", U.CityName);
+	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? [Y/N]", CityName);
 
 	UserInput = _getch();
 
 	if (UserInput == 'Y' || UserInput == 'y') return;
 
-	CityInfo();
+	CityInfo(CityName);
 }
 
 void GameInitialize(void) {
@@ -705,7 +726,7 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 }
 
-void SystemMessage(short MessageType) {
+void SystemMessage(char CityName[], short MessageType) {
 
 	CurPos(12, 8);
 	for (short i = 0; i < 33; ++i)putchar(' ');
@@ -721,7 +742,7 @@ void SystemMessage(short MessageType) {
 
 	case 1:
 
-		printf("%s 도시를 방어하라!", U.CityName);
+		printf("%s 도시를 방어하라!", CityName);
 		break;
 
 	case -1:
@@ -781,8 +802,9 @@ void UserPrint(short UserPosition) {
 short BuildingBuilder(short UserPosition, short BuildingType) {
 
 	char UserInput;
+	char DummyString[11] = { 0 };
 
-	SystemMessage(-3);
+	SystemMessage(DummyString, -3);
 
 	UserInput = _getch();
 
@@ -797,7 +819,7 @@ short BuildingBuilder(short UserPosition, short BuildingType) {
 		return 1;
 	}
 
-	SystemMessage(-4);
+	SystemMessage(DummyString, -4);
 	return 0;
 }
 
