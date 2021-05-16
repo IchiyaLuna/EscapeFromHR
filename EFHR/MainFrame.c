@@ -274,9 +274,9 @@ int main(void) {
 		}
 		else if (GameState == ProductionPhase) {
 
-			if (C.OccupyState[C.UserPosition] == Power) ++C.R.EnergyState;
-			else if (C.OccupyState[C.UserPosition] == Factory) ++C.R.TechnologyState;
-			else if (C.OccupyState[C.UserPosition] == Residence) ++C.R.CapitalState;
+			if (C.OccupyState[C.UserPosition] == Power) C.R.EnergyState += C.Health[C.UserPosition];
+			else if (C.OccupyState[C.UserPosition] == Factory) C.R.TechnologyState += C.Health[C.UserPosition];
+			else if (C.OccupyState[C.UserPosition] == Residence) C.R.CapitalState += C.Health[C.UserPosition];
 			ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
 		}
 	}
@@ -288,7 +288,7 @@ int main(void) {
 
 void SplashScreen(void) {
 
-	system("mode con:cols=96 lines=24");
+	system("mode con:cols=92 lines=24");
 
 	CursorView(0);
 
@@ -328,7 +328,7 @@ void SplashScreen(void) {
 		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Black);
 		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
-		CurPos(30, 17);
+		CurPos(30, 19);
 		puts("▶ Press Any Key to Start ◀");
 
 		if (_kbhit())break;
@@ -879,7 +879,7 @@ void SystemMessage(char CityName[], short MessageType) {
 
 	case EnterProductionPhase:
 
-		for (int i = 0; i < 5; ++i) {
+		for (int i = 0; i < 4; ++i) {
 			
 			CurPos(12, 8);
 
@@ -896,6 +896,8 @@ void SystemMessage(char CityName[], short MessageType) {
 		}
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(12, 8);
+		printf("자원 생산을 진행해주세요.");
 		break;
 
 	case ProductionPhase:
