@@ -49,6 +49,21 @@ enum BuildingType
 	Residence
 };
 
+enum PhaseState {
+
+	BuildingPhase,
+	EnterProductionPhase,
+	ProductionPhase
+};
+
+enum ErrorCode {
+
+	Canceled = -4,
+	Confirm,
+	NotingLeft,
+	AlreadyOccupied
+};
+
 typedef struct {
 
 	char UserName[11];
@@ -61,13 +76,6 @@ typedef struct {
 	short FactoryLeft;
 	short ResidenceLeft;
 }Buildings;
-
-typedef struct {
-
-	short PowerHealth;
-	short FactoryHealth;
-	short ResidenceHealth;
-}Health;
 
 typedef struct {
 
@@ -85,7 +93,7 @@ typedef struct {
 	Buildings B;
 
 	short OccupyState[12];
-	Health H[12];
+	short Health[12];
 
 	Resources R;
 }City;
@@ -108,26 +116,29 @@ void DialogDisplay(char toPrint[]);
 void UserInfo(char UserName[]);
 void CityInfo(char CityName[]);
 
-void GameInitialize(void);
+void GameInitialize(short GamePhase);
 void BuildingHeight(void);
 void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
-void SystemMessage(short MessageType);
+void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType);
+void SystemMessage(char CityName[], short MessageType);
 
 void UserPrint(short UserPosition);
 
-short BuildingBuilder(short UserPosition, short BuildingType);
-void MakePower(short UserPosition);
-void MakeFactory(short UserPosition);
-void MakeResidence(short UserPosition);
+short BuildingConfirm(short BuildingType);
+
+void BuildingBuilder(short OccupyState[]);
+void MakePower(short UserPosition, short Health);
+void MakeFactory(short UserPosition, short Health);
+void MakeResidence(short UserPosition, short Health);
 
 int main(void) {
 
-	City C = { .UserPosition = 6,
+	City C = { .UserPosition = 0,
 		.B.PowerLeft = 4, .B.FactoryLeft = 4, .B.ResidenceLeft = 4,
 		.OccupyState = { Blank }, 
 		.R.EnergyState = 0, .R.TechnologyState = 0, .R.CapitalState = 0 };
 	
-	short GameState = 0;
+	short GameState = BuildingPhase;
 	short IsBuildingError;
 	char UserInput;
 
@@ -140,16 +151,13 @@ int main(void) {
 	UserInfo(C.U.UserName);
 	CityInfo(C.U.CityName);
 
-	GameInitialize();
+	GameInitialize(GameState);
 
 	AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
+	UserPrint(C.UserPosition);
 	SystemMessage(C.U.CityName, GameState);
 
-	while (1) {
-
-		IsBuildingError = False;
-
-		UserPrint(C.UserPosition);
+	while (True) {
 
 		UserInput = _getch();
 
@@ -158,80 +166,119 @@ int main(void) {
 		else if (UserInput == 'a') --C.UserPosition;
 		else if (UserInput == 'd') ++C.UserPosition;
 
-		else if (!GameState && UserInput == 'e') {
+		if (C.UserPosition < 0) {
 
-			if (C.OccupyState[C.UserPosition]) {
-
-				SystemMessage(C.U.CityName, -2);
-				IsBuildingError = True;
-			}
-			else if (!C.B.PowerLeft) {
-
-				SystemMessage(C.U.CityName, -3);
-				IsBuildingError = True;
-			}
-
-			if (!IsBuildingError) {
-
-				if (BuildingBuilder(C.UserPosition, Power)) {
-
-					++C.OccupyState[C.UserPosition];
-					--C.B.PowerLeft;
-				}
-			}
+			C.UserPosition = 0;
+			continue;
 		}
-		else if (!GameState && UserInput == 't') {
+		if (C.UserPosition > 11) {
 
-			if (C.OccupyState[C.UserPosition]) {
-
-				SystemMessage(C.U.CityName, -1);
-				IsBuildingError = True;
-			}
-			else if (!C.B.FactoryLeft) {
-
-				SystemMessage(C.U.CityName, -2);
-				IsBuildingError = True;
-			}
-
-			if (!IsBuildingError) {
-
-				if (BuildingBuilder(C.UserPosition, Factory)) {
-
-					++C.OccupyState[C.UserPosition];
-					--C.B.FactoryLeft;
-				}
-			}
-		}
-		else if (!GameState && UserInput == 'm') {
-
-			if (C.OccupyState[C.UserPosition]) {
-
-				SystemMessage(C.U.CityName, -1);
-				IsBuildingError = True;
-			}
-			else if (!C.B.ResidenceLeft) {
-
-				SystemMessage(C.U.CityName, -2);
-				IsBuildingError = True;
-			}
-
-			if (!IsBuildingError) {
-
-				if (BuildingBuilder(C.UserPosition, Residence)) {
-
-					++C.OccupyState[C.UserPosition];
-					--C.B.ResidenceLeft;
-				}
-			}
+			C.UserPosition = 11;
+			continue;
 		}
 
-		AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
+		UserPrint(C.UserPosition);
+		SystemMessage(C.U.CityName, GameState);
 
-		if (!GameState && !C.B.PowerLeft && !C.B.FactoryLeft && !C.B.ResidenceLeft) ++GameState;
-		if (!IsBuildingError) SystemMessage(C.U.CityName, GameState);
+		if (!(UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
 
-		if (C.UserPosition < 0) C.UserPosition = 0;
-		else if (C.UserPosition > 11) C.UserPosition = 11;
+			IsBuildingError = False;
+
+			if (UserInput == 'e') {
+
+				if (C.OccupyState[C.UserPosition]) {
+
+					SystemMessage(C.U.CityName, AlreadyOccupied);
+					IsBuildingError = True;
+				}
+				else if (!C.B.PowerLeft) {
+
+					SystemMessage(C.U.CityName, NotingLeft);
+					IsBuildingError = True;
+				}
+
+				if (!IsBuildingError) {
+
+					if (BuildingConfirm(Power)) {
+
+						C.OccupyState[C.UserPosition] = Power;
+						C.Health[C.UserPosition] = PowerHeight;
+						--C.B.PowerLeft;
+					}
+					else GameState = Canceled;
+				}
+			}
+			else if (UserInput == 't') {
+
+				if (C.OccupyState[C.UserPosition]) {
+
+					SystemMessage(C.U.CityName, AlreadyOccupied);
+					IsBuildingError = True;
+				}
+				else if (!C.B.FactoryLeft) {
+
+					SystemMessage(C.U.CityName, NotingLeft);
+					IsBuildingError = True;
+				}
+
+				if (!IsBuildingError) {
+
+					if (BuildingConfirm(Factory)) {
+
+						C.OccupyState[C.UserPosition] = Factory;
+						C.Health[C.UserPosition] = FactoryHeight;
+						--C.B.FactoryLeft;
+					}
+					else GameState = Canceled;
+				}
+			}
+			else if (UserInput == 'm') {
+
+				if (C.OccupyState[C.UserPosition]) {
+
+					SystemMessage(C.U.CityName, AlreadyOccupied);
+					IsBuildingError = True;
+				}
+				else if (!C.B.ResidenceLeft) {
+
+					SystemMessage(C.U.CityName, NotingLeft);
+					IsBuildingError = True;
+				}
+
+				if (!IsBuildingError) {
+
+					if (BuildingConfirm(Residence)) {
+
+						C.OccupyState[C.UserPosition] = Residence;
+						C.Health[C.UserPosition] = ResidenceHeight;
+						--C.B.ResidenceLeft;
+					}
+					else GameState = Canceled;
+				}
+			}
+
+			AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
+
+			if (IsBuildingError == False) SystemMessage(C.U.CityName, GameState);
+			if (GameState == Canceled) GameState = BuildingPhase;
+
+			BuildingBuilder(C.OccupyState);
+
+			if (!C.B.PowerLeft && !C.B.FactoryLeft && !C.B.ResidenceLeft) {
+
+				SystemMessage(C.U.CityName, EnterProductionPhase);
+				GameInitialize(ProductionPhase);
+				ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
+				GameState = ProductionPhase;
+			}
+		}
+		else if (GameState == ProductionPhase) {
+
+			if (C.OccupyState[C.UserPosition] == Power) ++C.R.EnergyState;
+			else if (C.OccupyState[C.UserPosition] == Factory) ++C.R.TechnologyState;
+			else if (C.OccupyState[C.UserPosition] == Residence) ++C.R.CapitalState;
+			ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
+		}
 	}
 
 	DialogDisplay("啪歜擊 謙猿м棲棻... 釭醞縑 棻衛 瞄啊蝗棲棻 餌滄婦椒.");
@@ -534,7 +581,7 @@ void UserInfo(char UserName[]) {
 			}
 			else {
 			
-				strcpy_s(UserName, sizeof(UserName), StringBuffer);
+				strcpy_s(UserName, 11, StringBuffer);
 				break;
 			}
 		}
@@ -617,7 +664,7 @@ void CityInfo(char CityName[]) {
 			}
 			else {
 
-				strcpy_s(CityName, sizeof(CityName), StringBuffer);
+				strcpy_s(CityName, 11, StringBuffer);
 				break;
 			}
 		}
@@ -651,54 +698,91 @@ void CityInfo(char CityName[]) {
 	CityInfo(CityName);
 }
 
-void GameInitialize(void) {
+void GameInitialize(short GamePhase) {
 
-	system("cls");
+	if (GamePhase == BuildingPhase) {
 
-	CursorView(0);
+		system("cls");
 
-	CurPos(1, 0);
-	printf("旨收收收收收收收有收收收收收收收有收收收收收收收收收收收收收收收收收有收收收收收收收收收旬"); CurPos(1, 1);
-	printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
-	  printf("嫦瞪模"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-	        printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : e早"); CurPos(1, 2);
-	printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 3);
-	printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-	  printf("奢  濰"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-	        printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : t早"); CurPos(1, 4);
-	printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 5);
-	printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
-	  printf("輿剪雖"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-	        printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : m早"); CurPos(1, 6);
-	printf("曲收收收收收收收朴收收收收收收收朴收收收收收收收收收收收收收收收收收朴收收收收收收收收收旭"); CurPos(1, 7);
-	printf("旨收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旬"); CurPos(1, 8);
-	printf("早 SYSTEM :                                  早"); CurPos(1, 9);
-	printf("曲收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旭"); CurPos(1, 10);
-	printf("旨收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旬"); CurPos(1, 11);
-	printf("早                                           早"); CurPos(1, 12);
-	printf("早                <歜衛 紫遺蜓>              早"); CurPos(1, 13);
-	printf("早                                           早"); CurPos(1, 14);
-	printf("早  嬪 詭景曖 勒撲酈蒂 援腦賊 勒僭擊 騁朝棻. 早"); CurPos(1, 15);
-	printf("早                                           早"); CurPos(1, 16);
-	printf("早      ⑷薯 薯濛 欽啗 : 勒僭 勒撲 掘⑷      早"); CurPos(1, 17);
-	printf("早                                           早"); CurPos(1, 18);
-	printf("早                                           早"); CurPos(1, 19);
-	printf("早                                           早"); CurPos(1, 20);
-	printf("曲收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旭"); CurPos(1, 21);
-	printf("旨收收收收收收收有收收收收收收收收收收收收收收收收收收收收有收收收收收收收收收收收收收收旬"); CurPos(1, 22);
-	printf("早 檜  翕早 豭薹 : a 螃艇薹 : d早 啪歜 謙猿 : x早"); CurPos(1, 23);
-	printf("曲收收收收收收收朴收收收收收收收收收收收收收收收收收收收收朴收收收收收收收收收收收收收收旭"); 
+		CursorView(0);
 
-	BuildingHeight();
+		CurPos(1, 0);
+		printf("旨收收收收收收收有收收收收收收收有收收收收收收收收收收收收收收收收收有收收收收收收收收收旬"); CurPos(1, 1);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
+		printf("嫦瞪模"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : e早"); CurPos(1, 2);
+		printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 3);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("奢  濰"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : t早"); CurPos(1, 4);
+		printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 5);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("輿剪雖"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 堪檜 0早 勒撲 陛棟 熱 : 0早 勒撲 : m早"); CurPos(1, 6);
+		printf("曲收收收收收收收朴收收收收收收收朴收收收收收收收收收收收收收收收收收朴收收收收收收收收收旭"); CurPos(1, 7);
+		printf("旨收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旬"); CurPos(1, 8);
+		printf("早 SYSTEM :                                  早"); CurPos(1, 9);
+		printf("曲收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旭"); CurPos(1, 10);
+		printf("旨收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旬"); CurPos(1, 11);
+		printf("早                                           早"); CurPos(1, 12);
+		printf("早         <褐殮 餌滄婦擊 嬪и 詭賅>         早"); CurPos(1, 13);
+		printf("早                                           早"); CurPos(1, 14);
+		printf("早           鏃歜擊 �紊腎炡� 餌滄婦          早"); CurPos(1, 15);
+		printf("早  嬪 詭景蒂 霤堅ж罹 紫衛 勒撲擊 霞чж啪  早"); CurPos(1, 16);
+		printf("早     陝 勒僭擎 堅嶸曖 濠錳擊 儅骯и棻啻    早"); CurPos(1, 17);
+		printf("早      斜楝棲 ⑷貲ж啪 勒撲擊 霞чж啪      早"); CurPos(1, 18);
+		printf("早                                           早"); CurPos(1, 19);
+		printf("早                                           早"); CurPos(1, 20);
+		printf("曲收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旭"); CurPos(1, 21);
+		printf("旨收收收收收收收有收收收收收收收收收收收收收收收收收收收收有收收收收收收收收收收收收收收旬"); CurPos(1, 22);
+		printf("早 檜  翕早 豭薹 : a 螃艇薹 : d早 啪歜 謙猿 : x早"); CurPos(1, 23);
+		printf("曲收收收收收收收朴收收收收收收收收收收收收收收收收收收收收朴收收收收收收收收收收收收收收旭");
 
-	CurPos(50, 0);
-	printf("旨收收收收收收收收收收收收收旬"); CurPos(50, 1);
-	for (short i = 2; i < 22; ++i) {
-		printf("早             早"); CurPos(50, i);
+		BuildingHeight();
+
+		CurPos(50, 0);
+		printf("旨收收收收收收收收收收收收收旬"); CurPos(50, 1);
+		for (short i = 2; i < 22; ++i) {
+			printf("早             早"); CurPos(50, i);
+		}
+		printf("曳收收收收收收收收收收收收收朽"); CurPos(50, 22);
+		printf("早             早"); CurPos(50, 23);
+		printf("曲收收收收收收收收收收收收收旭");
 	}
-	printf("曳收收收收收收收收收收收收收朽"); CurPos(50, 22);
-	printf("早             早"); CurPos(50, 23);
-	printf("曲收收收收收收收收收收收收收旭");
+	else if (GamePhase == ProductionPhase) {
+
+		CurPos(1, 0);
+		printf("旨收收收收收收收有收收收收收收收有收收收收收收收收收收收收收收收收收有收收收收收收收收收旬"); CurPos(1, 1);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
+		printf("嫦瞪模"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Yellow);
+		printf("縑傘雖"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 1234567890123456早 螃 盟 歜早"); CurPos(1, 2);
+		printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 3);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("奢  濰"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Red);
+		printf("晦  獎"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 1234567890123456早 螃 盟 歜早"); CurPos(1, 4);
+		printf("曳收收收收收收收朱收收收收收收收朱收收收收收收收收收收收收收收收收收朱收收收收收收收收收朽"); CurPos(1, 5);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("輿剪雖"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Green);
+		printf("濠  獄"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		printf("早 1234567890123456早 螃 盟 歜早"); CurPos(1, 6);
+		printf("曲收收收收收收收朴收收收收收收收朴收收收收收收收收收收收收收收收收收朴收收收收收收收收收旭"); CurPos(1, 10);
+		printf("旨收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旬"); CurPos(1, 11);
+		printf("早                                           早"); CurPos(1, 12);
+		printf("早         <褐殮 餌滄婦擊 嬪и 詭賅>         早"); CurPos(1, 13);
+		printf("早                                           早"); CurPos(1, 14);
+		printf("早             紫衛蒂 澀 勒撲ц捱            早"); CurPos(1, 15);
+		printf("早           謝辦煎 濠啻陛 遺霜檜賊          早"); CurPos(1, 16);
+		printf("早       濠啻陛 紫雜и 掘羲曖 勒僭煎睡攪     早"); CurPos(1, 17);
+		printf("早         堅嶸и 濠錳擊 �僱磈� 熱 氈啻      早"); CurPos(1, 18);
+		printf("早      в蹂и 濠錳擊 �螃窕�戲煎 賅嬴爾啪    早"); CurPos(1, 19);
+		printf("早                                           早"); CurPos(1, 20);
+		printf("曲收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收收旭"); CurPos(0, 23);
+	}
 }
 
 void BuildingHeight(void) {
@@ -722,8 +806,61 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
 	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-	printf("%d", AvailResidence);
+	printf("%d", AvailResidence); CurPos(0, 23);
 	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+}
+
+void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType) {
+
+	CurPos(19, 1);
+	printf("%-16d", EnergyState); CurPos(37, 1);
+
+	if (ResourceType == Power) {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("儅 骯 醞");
+	}
+	else {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("渠 晦 醞"); 
+	}
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
+	CurPos(19, 3);
+	printf("%-16d", TechnologyState); CurPos(37, 3);
+
+	if (ResourceType == Factory) {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("儅 骯 醞");
+	}
+	else {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("渠 晦 醞"); 
+	}
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
+	CurPos(19, 5);
+	printf("%-16d", CapitalState); CurPos(37, 5);
+
+	if (ResourceType == Residence) {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("儅 骯 醞");
+	}
+	else {
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("渠 晦 醞"); CurPos(19, 3);
+	}
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
+	CurPos(0, 23);
 }
 
 void SystemMessage(char CityName[], short MessageType) {
@@ -735,45 +872,65 @@ void SystemMessage(char CityName[], short MessageType) {
 
 	switch (MessageType) {
 	
-	case 0:
+	case BuildingPhase:
 
 		printf("勒僭 勒撲擊 霞чп輿撮蹂.");
 		break;
 
-	case 1:
+	case EnterProductionPhase:
 
-		printf("%s 紫衛蒂 寞橫ж塭!", CityName);
+		for (int i = 0; i < 5; ++i) {
+			
+			CurPos(12, 8);
+
+			for (short i = 0; i < 33; ++i)putchar(' ');
+
+			CurPos(12, 8);
+
+			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Cyan);
+
+			if (i % 2) printf("儅骯 欽啗縑 霞殮м棲棻.");
+			else printf("Please Wait...");
+
+			Sleep(500);
+		}
+
+		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
-	case -1:
+	case ProductionPhase:
+
+		printf("濠錳 儅骯擊 霞чп輿撮蹂.");
+		break;
+
+	case AlreadyOccupied:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("檜嘐 勒僭擊 雖橫霞 奢除殮棲棻.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
-	case -2:
+	case NotingLeft:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("陴擎 勒僭檜 橈蝗棲棻.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
-	case -3:
+	case Confirm:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
 		printf("勒撲ж衛溥賊 и 廓 渦 揚楝輿撮蹂.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 
-	case -4:
+	case Canceled:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("鏃模腎歷蝗棲棻.");
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		Sleep(500);
 		break;
-
+		
 	default:
 
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
@@ -781,6 +938,8 @@ void SystemMessage(char CityName[], short MessageType) {
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		break;
 	}
+
+	CurPos(0, 23);
 }
 
 void UserPrint(short UserPosition) {
@@ -788,7 +947,7 @@ void UserPrint(short UserPosition) {
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Cyan);
 
 	for (short i = 0; i < 12; ++i) {
-		
+
 		CurPos(52 + i, 22);
 
 		if (i == UserPosition) putchar('*');
@@ -796,10 +955,11 @@ void UserPrint(short UserPosition) {
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
 	CurPos(0, 23);
 }
 
-short BuildingBuilder(short UserPosition, short BuildingType) {
+short BuildingConfirm(short BuildingType) {
 
 	char UserInput;
 	char DummyString[11] = { 0 };
@@ -808,59 +968,68 @@ short BuildingBuilder(short UserPosition, short BuildingType) {
 
 	UserInput = _getch();
 
-	if ((BuildingType == Power && UserInput == 'e') || 
-		(BuildingType == Factory && UserInput == 't') || 
+	if ((BuildingType == Power && UserInput == 'e') ||
+		(BuildingType == Factory && UserInput == 't') ||
 		(BuildingType == Residence && UserInput == 'm')) {
 
-		if (BuildingType == Power) MakePower(UserPosition);
-		else if (BuildingType == Factory) MakeFactory(UserPosition);
-		else if (BuildingType == Residence)MakeResidence(UserPosition);
-
-		return 1;
+		return True;
 	}
 
-	SystemMessage(DummyString, -4);
-	return 0;
+	return False;
 }
 
-void MakePower(short UserPosition) {
+void BuildingBuilder(short OccupyState[]) {
+
+	for (short i = 0; i < 12; ++i) {
+
+		if (!OccupyState[i]) continue;
+		if (OccupyState[i] == Power) MakePower(i, PowerHeight);
+		else if (OccupyState[i] == Factory) MakeFactory(i, FactoryHeight);
+		else if (OccupyState[i] == Residence) MakeResidence(i, ResidenceHeight);
+	}
+}
+
+void MakePower(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
 
-	for (short i = 20; i > 20 - PowerHeight; --i) {
+	for (short i = 20; i > 20 - Health; --i) {
 	
 		CurPos(52 + UserPosition, i);
 		putchar('E');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
 	CurPos(0, 23);
 }
 
-void MakeFactory(short UserPosition) {
+void MakeFactory(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 
-	for (short i = 20; i > 20 - FactoryHeight; --i) {
+	for (short i = 20; i > 20 - Health; --i) {
 
 		CurPos(52 + UserPosition, i);
 		putchar('T');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
 	CurPos(0, 23);
 }
 
-void MakeResidence(short UserPosition) {
+void MakeResidence(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
 
-	for (short i = 20; i > 20 - ResidenceHeight; --i) {
+	for (short i = 20; i > 20 - Health; --i) {
 
 		CurPos(52 + UserPosition, i);
 		putchar('M');
 	}
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
 	CurPos(0, 23);
 }
