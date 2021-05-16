@@ -747,7 +747,7 @@ void GameInitialize(short GamePhase) {
 		}
 		printf("曳收收收收收收收收收收收收收朽"); CurPos(50, 22);
 		printf("早             早"); CurPos(50, 23);
-		printf("曲收收收收收收收收收收收收收旭");
+		printf("曲收收收收收收收收收收收收收旭"); CurPos(0, 23);
 	}
 	else if (GamePhase == ProductionPhase) {
 
