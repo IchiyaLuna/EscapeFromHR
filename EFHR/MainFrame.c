@@ -126,7 +126,7 @@ void GameInitialize(short GamePhase);
 void BuildingHeight(void);
 void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
 void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType);
-void SystemMessage(char CityName[], short MessageType);
+void SystemMessage(short MessageType);
 
 void UserPrint(short UserPosition);
 
@@ -159,9 +159,7 @@ int main(void) {
 
 	GameInitialize(GameState);
 
-	AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
-	UserPrint(C.UserPosition);
-	SystemMessage(C.U.CityName, GameState);
+	SystemMessage(BuildingPhase);
 
 	while (True) {
 
@@ -184,7 +182,7 @@ int main(void) {
 		}
 
 		UserPrint(C.UserPosition);
-		SystemMessage(C.U.CityName, GameState);
+		SystemMessage(GameState);
 
 		if (!(UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
 
@@ -194,12 +192,12 @@ int main(void) {
 
 				if (C.OccupyState[C.UserPosition]) {
 
-					SystemMessage(C.U.CityName, AlreadyOccupied);
+					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
 				else if (!C.B.PowerLeft) {
 
-					SystemMessage(C.U.CityName, NotingLeft);
+					SystemMessage(NotingLeft);
 					IsBuildingError = True;
 				}
 
@@ -213,7 +211,7 @@ int main(void) {
 					}
 					else {
 
-						SystemMessage(C.U.CityName, Canceled);
+						SystemMessage(Canceled);
 						IsBuildingError = True;
 					}
 				}
@@ -222,12 +220,12 @@ int main(void) {
 
 				if (C.OccupyState[C.UserPosition]) {
 
-					SystemMessage(C.U.CityName, AlreadyOccupied);
+					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
 				else if (!C.B.FactoryLeft) {
 
-					SystemMessage(C.U.CityName, NotingLeft);
+					SystemMessage(NotingLeft);
 					IsBuildingError = True;
 				}
 
@@ -241,7 +239,7 @@ int main(void) {
 					}
 					else {
 
-						SystemMessage(C.U.CityName, Canceled);
+						SystemMessage(Canceled);
 						IsBuildingError = True;
 					}
 				}
@@ -250,12 +248,12 @@ int main(void) {
 
 				if (C.OccupyState[C.UserPosition]) {
 
-					SystemMessage(C.U.CityName, AlreadyOccupied);
+					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
 				else if (!C.B.ResidenceLeft) {
 
-					SystemMessage(C.U.CityName, NotingLeft);
+					SystemMessage(NotingLeft);
 					IsBuildingError = True;
 				}
 
@@ -269,7 +267,7 @@ int main(void) {
 					}
 					else {
 
-						SystemMessage(C.U.CityName, Canceled);
+						SystemMessage(Canceled);
 						IsBuildingError = True;
 					}
 				}
@@ -277,13 +275,13 @@ int main(void) {
 
 			AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
 
-			if (IsBuildingError == False) SystemMessage(C.U.CityName, GameState);
+			if (IsBuildingError == False) SystemMessage(GameState);
 
 			BuildingBuilder(C.OccupyState);
 
 			if (!C.B.PowerLeft && !C.B.FactoryLeft && !C.B.ResidenceLeft) {
 
-				SystemMessage(C.U.CityName, EnterProductionPhase);
+				SystemMessage(EnterProductionPhase);
 				GameInitialize(ProductionPhase);
 				ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
 				GameState = ProductionPhase;
@@ -759,6 +757,7 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 23); printf("曲收收收收收收收朴收收收收收收收收收收收收收收收收收收收收朴收收收收收收收收收收收收收收旭");
 
 		BuildingHeight();
+		AvailableBuilding(4, 4, 4);
 
 		CurPos(50, 0); printf("旨收收收收收收收收收收收收收旬");
 		for (short i = 1; i < 21; ++i) {
@@ -768,6 +767,8 @@ void GameInitialize(short GamePhase) {
 		CurPos(50, 21); printf("曳收收收收收收收收收收收收收朽");
 		CurPos(50, 22); printf("早             早");
 		CurPos(50, 23); printf("曲收收收收收收收收收收收收收旭"); 
+
+		UserPrint(0);
 
 		CurPos(0, 23);
 	}
@@ -901,7 +902,7 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 	CurPos(0, 23);
 }
 
-void SystemMessage(char CityName[], short MessageType) {
+void SystemMessage(short MessageType) {
 
 	CurPos(12, 8);
 
@@ -1003,9 +1004,9 @@ void UserPrint(short UserPosition) {
 short BuildingConfirm(short BuildingType) {
 
 	char UserInput;
-	char DummyString[11] = { Blank };
 
-	SystemMessage(DummyString, -3);
+
+	SystemMessage(Confirm);
 
 	UserInput = _getch();
 
