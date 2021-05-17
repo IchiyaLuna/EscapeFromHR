@@ -328,7 +328,7 @@ void SplashScreen(void) {
 		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Black);
 		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
-		CurPos(30, 19);
+		CurPos(30, 20);
 		puts("¢º Press Any Key to Start ¢¸");
 
 		if (_kbhit())break;
