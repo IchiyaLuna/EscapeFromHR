@@ -12,6 +12,8 @@ All rights reserved...
 #include <string.h>
 #include <Windows.h>
 
+#define CityLeft 52
+
 #define PowerHeight 4
 #define FactoryHeight 3
 #define ResidenceHeight 2
@@ -290,7 +292,7 @@ void SplashScreen(void) {
 
 	system("mode con:cols=92 lines=24");
 
-	CursorView(0);
+	CursorView(False);
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 
@@ -425,15 +427,15 @@ void CurPos(short x, short y) {
 
 void CursorView(short show) {
 
-	HANDLE hConsole;
+	HANDLE ConsoleHandle;
 	CONSOLE_CURSOR_INFO ConsoleCursor;
 
-	hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	ConsoleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 
 	ConsoleCursor.bVisible = show;
 	ConsoleCursor.dwSize = 1;
 
-	SetConsoleCursorInfo(hConsole, &ConsoleCursor);
+	SetConsoleCursorInfo(ConsoleHandle, &ConsoleCursor);
 }
 
 void K_Putchar(char toPrint[], short index) {
@@ -527,7 +529,6 @@ void DialogDisplay(char toPrint[]) {
 		CurPos(2, 2);
 		TypeAnimation(LineCutB);
 	}
-	CurPos(0, 2);
 
 	PAC();
 }
@@ -748,6 +749,7 @@ void GameInitialize(short GamePhase) {
 		CurPos(50, 21); printf("┣━━━━━━━━━━━━━┫");
 		CurPos(50, 22); printf("┃             ┃");
 		CurPos(50, 23); printf("┗━━━━━━━━━━━━━┛"); 
+
 		CurPos(0, 23);
 	}
 	else if (GamePhase == ProductionPhase) {
@@ -783,39 +785,48 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 18); printf("┃    필요한 자원을 효율적으로 모아보게      ┃"); 
 		CurPos(1, 19); printf("┃                                           ┃");
 		CurPos(1, 20); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
 		CurPos(0, 23);
 	}
 }
 
 void BuildingHeight(void) {
 
-	CurPos(16, 1);
-	printf("%d", PowerHeight); CurPos(16, 3);
-	printf("%d", FactoryHeight); CurPos(16, 5);
-	printf("%d", ResidenceHeight);
+	
+	CurPos(16, 1); printf("%d", PowerHeight);
+	CurPos(16, 3); printf("%d", FactoryHeight);
+	CurPos(16, 5); printf("%d", ResidenceHeight);
+
+	CurPos(0, 23);
 }
 
 void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 
-	CurPos(34, 1);
+	
 
 	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-	printf("%d", AvailPower); CurPos(34, 3);
+	CurPos(34, 1); printf("%d", AvailPower);
 	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
 	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-	printf("%d", AvailFactory); CurPos(34, 5);
+	CurPos(34, 3); printf("%d", AvailFactory);
 	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
 	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-	printf("%d", AvailResidence); CurPos(0, 23);
+	CurPos(34, 5); printf("%d", AvailResidence);
 	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+
+	CurPos(0, 23);
 }
 
 void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType) {
 
-	CurPos(19, 1);
-	printf("%-16d", EnergyState); CurPos(37, 1);
+	
+	CurPos(19, 1); 
+	
+	printf("%-16d", EnergyState);
+
+	CurPos(37, 1);
 
 	if (ResourceType == Power) {
 
@@ -831,7 +842,10 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
 	CurPos(19, 3);
-	printf("%-16d", TechnologyState); CurPos(37, 3);
+	
+	printf("%-16d", TechnologyState); 
+	
+	CurPos(37, 3);
 
 	if (ResourceType == Factory) {
 
@@ -847,7 +861,10 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 
 	CurPos(19, 5);
-	printf("%-16d", CapitalState); CurPos(37, 5);
+
+	printf("%-16d", CapitalState); 
+	
+	CurPos(37, 5);
 
 	if (ResourceType == Residence) {
 
@@ -868,6 +885,7 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 void SystemMessage(char CityName[], short MessageType) {
 
 	CurPos(12, 8);
+
 	for (short i = 0; i < 33; ++i)putchar(' ');
 
 	CurPos(12, 8);
@@ -952,7 +970,7 @@ void UserPrint(short UserPosition) {
 
 	for (short i = 0; i < 12; ++i) {
 
-		CurPos(52 + i, 22);
+		CurPos(CityLeft + i, 22);
 
 		if (i == UserPosition) putchar('*');
 		else putchar(' ');
@@ -966,7 +984,7 @@ void UserPrint(short UserPosition) {
 short BuildingConfirm(short BuildingType) {
 
 	char UserInput;
-	char DummyString[11] = { 0 };
+	char DummyString[11] = { Blank };
 
 	SystemMessage(DummyString, -3);
 
@@ -999,7 +1017,7 @@ void MakePower(short UserPosition, short Health) {
 
 	for (short i = 20; i > 20 - Health; --i) {
 	
-		CurPos(52 + UserPosition, i);
+		CurPos(CityLeft + UserPosition, i);
 		putchar('E');
 	}
 
@@ -1014,7 +1032,7 @@ void MakeFactory(short UserPosition, short Health) {
 
 	for (short i = 20; i > 20 - Health; --i) {
 
-		CurPos(52 + UserPosition, i);
+		CurPos(CityLeft + UserPosition, i);
 		putchar('T');
 	}
 
@@ -1029,7 +1047,7 @@ void MakeResidence(short UserPosition, short Health) {
 
 	for (short i = 20; i > 20 - Health; --i) {
 
-		CurPos(52 + UserPosition, i);
+		CurPos(CityLeft + UserPosition, i);
 		putchar('M');
 	}
 
