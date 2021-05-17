@@ -114,6 +114,7 @@ void PAC(void);
 void CurPos(short x, short y);
 void CursorView(short show);
 void K_Putchar(char toPrint[], short index);
+void StringColor(short color);
 
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
@@ -308,7 +309,7 @@ void SplashScreen(void) {
 
 	CursorView(False);
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+	StringColor(Red);
 
 	putchar('\n');
 	puts(":::    :::     :::     :::::::::  :::::::::   :::::::::      :::     ::::::::::: ::::    :::");
@@ -341,8 +342,8 @@ void SplashScreen(void) {
 		CurPos(84, 14);
 		CharBlink('*', i % 2, Red);
 
-		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Black);
-		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		if (i % 2) StringColor(Black);
+		else StringColor(White);
 
 		CurPos(30, 20);
 		puts("▶ Press Any Key to Start ◀");
@@ -352,17 +353,17 @@ void SplashScreen(void) {
 		Sleep(500);
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	char Dummy = _getch();
 }
 
 void CharBlink(char toBlink, short show, short color) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+	StringColor(color);
 	if (show) putchar(toBlink);
 	else putchar(' ');
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 }
 
 void GameSetup(void) {
@@ -417,8 +418,8 @@ void PAC(void) {
 
 	for (int i = 0;; ++i) {
 
-		if (i % 2) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Black);
-		else SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		if (i % 2) StringColor(Black);
+		else StringColor(White);
 
 		CurPos(22, 20);
 		puts("▶ Press Any Key ◀");
@@ -428,7 +429,7 @@ void PAC(void) {
 		Sleep(500);
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	char Dummy = _getch();
 }
@@ -458,9 +459,14 @@ void K_Putchar(char toPrint[], short index) {
 	if (toPrint[index + 1]) putchar(toPrint[index + 1]);
 }
 
+void StringColor(short color) {
+
+	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
 void TypeAnimation(char toPrint[]) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Cyan);
+	StringColor(Cyan);
 
 	for (short i = 0; toPrint[i]; i += 2) {
 
@@ -478,7 +484,7 @@ void TypeAnimation(char toPrint[]) {
 		if (!toPrint[i + 1]) break;
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 }
 
 void DialogDisplay(char toPrint[]) {
@@ -559,7 +565,7 @@ void UserInfo(char UserName[]) {
 
 	system("cls");
 
-	CursorView(1);
+	CursorView(True);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
 	printf("┃ 당신의 이름은? (최대 영문 10자, 공백 불가)┃           ┃\n");
@@ -567,7 +573,7 @@ void UserInfo(char UserName[]) {
 
 	CurPos(46, 1);
 
-	while (1) {
+	while (True) {
 
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
 
@@ -576,7 +582,7 @@ void UserInfo(char UserName[]) {
 		printf("남은 글자 수 : %-24d", 56 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
-		CursorView(1);
+		CursorView(True);
 
 		CharBuffer = _getche();
 		if (CharBuffer > 32) StringBuffer[Index] = CharBuffer;
@@ -642,7 +648,7 @@ void CityInfo(char CityName[]) {
 
 	system("cls");
 
-	CursorView(1);
+	CursorView(True);
 
 	printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┓\n");
 	printf("┃ 방어할 도시의 이름은? (최대 영문 10자, 공백 불가)┃           ┃\n");
@@ -650,7 +656,7 @@ void CityInfo(char CityName[]) {
 
 	CurPos(53, 1);
 
-	while (1) {
+	while (True) {
 
 		GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &curInfo);
 
@@ -659,7 +665,7 @@ void CityInfo(char CityName[]) {
 		printf("남은 글자 수 : %-29d", 63 - curInfo.dwCursorPosition.X);
 
 		CurPos(curInfo.dwCursorPosition.X, 1);
-		CursorView(1);
+		CursorView(True);
 
 		Dummy = _getche();
 		if (Dummy > 32) StringBuffer[Index] = Dummy;
@@ -719,19 +725,19 @@ void GameInitialize(short GamePhase) {
 
 		system("cls");
 
-		CursorView(0);
+		CursorView(False);
 
 		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓"); 
-		CurPos(1, 1); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
-		printf("발전소"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 1); printf("┃ "); StringColor(Yellow);
+		printf("발전소"); StringColor(White);
 		printf("┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : e┃"); 
 		CurPos(1, 2); printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫");
-		CurPos(1, 3); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-		printf("공  장"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 3); printf("┃ "); StringColor(Red);
+		printf("공  장"); StringColor(White);
 		printf("┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : t┃");
 		CurPos(1, 4); printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫");
-		CurPos(1, 5); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
-		printf("주거지"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 5); printf("┃ "); StringColor(Green);
+		printf("주거지"); StringColor(White);
 		printf("┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : m┃");
 		CurPos(1, 6); printf("┗━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━━━━━┻━━━━━━━━━┛");
 		CurPos(1, 7); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
@@ -754,7 +760,6 @@ void GameInitialize(short GamePhase) {
 
 		BuildingHeight();
 
-		
 		CurPos(50, 0); printf("┏━━━━━━━━━━━━━┓");
 		for (short i = 1; i < 21; ++i) {
 			CurPos(50, i);
@@ -770,22 +775,22 @@ void GameInitialize(short GamePhase) {
 
 		
 		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓");
-		CurPos(1, 1); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
-		printf("발전소"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Yellow);
-		printf("에너지"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 1); printf("┃ "); StringColor(Yellow);
+		printf("발전소"); StringColor(White);
+		printf("┃ "); StringColor(D_Yellow);
+		printf("에너지"); StringColor(White);
 		printf("┃ EEEEEEEEEEEEEE16┃ 오 류 임┃");
 		CurPos(1, 2); printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫");
-		CurPos(1, 3); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
-		printf("공  장"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Red);
-		printf("기  술"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 3); printf("┃ "); StringColor(Red);
+		printf("공  장"); StringColor(White);
+		printf("┃ "); StringColor(D_Red);
+		printf("기  술"); StringColor(White);
 		printf("┃ EEEEEEEEEEEEEE16┃ 오 류 임┃");
 		CurPos(1, 4); printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫");
-		CurPos(1, 5); printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
-		printf("주거지"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("┃ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Green);
-		printf("자  본"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		CurPos(1, 5); printf("┃ "); StringColor(Green);
+		printf("주거지"); StringColor(White);
+		printf("┃ "); StringColor(D_Green);
+		printf("자  본"); StringColor(White);
 		printf("┃ EEEEEEEEEEEEEE16┃ 오 류 임┃");
 		CurPos(1, 6); printf("┗━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━━━━━┻━━━━━━━━━┛");
 		CurPos(1, 10); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
@@ -818,17 +823,17 @@ void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
 
 	
 
-	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+	if (!AvailPower) StringColor(Red);
 	CurPos(34, 1); printf("%d", AvailPower);
-	if (!AvailPower) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	if (!AvailPower) StringColor(White);
 
-	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+	if (!AvailFactory) StringColor(Red);
 	CurPos(34, 3); printf("%d", AvailFactory);
-	if (!AvailFactory) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	if (!AvailFactory) StringColor(White);
 
-	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+	if (!AvailResidence) StringColor(Red);
 	CurPos(34, 5); printf("%d", AvailResidence);
-	if (!AvailResidence) SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	if (!AvailResidence) StringColor(White);
 
 	CurPos(0, 23);
 }
@@ -844,16 +849,16 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 
 	if (ResourceType == Power) {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		StringColor(Green);
 		printf("생 산 중");
 	}
 	else {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("대 기 중"); 
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(19, 3);
 	
@@ -863,16 +868,16 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 
 	if (ResourceType == Factory) {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		StringColor(Green);
 		printf("생 산 중");
 	}
 	else {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("대 기 중"); 
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(19, 5);
 
@@ -882,16 +887,16 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 
 	if (ResourceType == Residence) {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		StringColor(Green);
 		printf("생 산 중");
 	}
 	else {
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("대 기 중"); CurPos(19, 3);
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(0, 23);
 }
@@ -921,7 +926,7 @@ void SystemMessage(char CityName[], short MessageType) {
 
 			CurPos(12, 8);
 
-			SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Cyan);
+			StringColor(Cyan);
 
 			if (i % 2) printf("생산 단계에 진입합니다.");
 			else printf("Please Wait...");
@@ -929,7 +934,7 @@ void SystemMessage(char CityName[], short MessageType) {
 			Sleep(500);
 		}
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		CurPos(12, 8);
 		printf("자원 생산을 진행해주세요.");
 		break;
@@ -941,37 +946,37 @@ void SystemMessage(char CityName[], short MessageType) {
 
 	case AlreadyOccupied:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("이미 건물을 지어진 공간입니다.");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		break;
 
 	case NotingLeft:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("남은 건물이 없습니다.");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		break;
 
 	case Confirm:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		StringColor(Green);
 		printf("건설하시려면 한 번 더 눌러주세요.");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		break;
 
 	case Canceled:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("취소되었습니다.");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		break;
 		
 	default:
 
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		StringColor(Red);
 		printf("Error, Someting Went Wrong");
-		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+		StringColor(White);
 		break;
 	}
 
@@ -980,7 +985,7 @@ void SystemMessage(char CityName[], short MessageType) {
 
 void UserPrint(short UserPosition) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Cyan);
+	StringColor(Cyan);
 
 	for (short i = 0; i < 12; ++i) {
 
@@ -990,7 +995,7 @@ void UserPrint(short UserPosition) {
 		else putchar(' ');
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(0, 23);
 }
@@ -1016,7 +1021,7 @@ short BuildingConfirm(short BuildingType) {
 
 void BuildingBuilder(short OccupyState[]) {
 
-	for (short i = 0; i < 12; ++i) {
+	for (short i = 0; i < CityWidth; ++i) {
 
 		if (!OccupyState[i]) continue;
 		if (OccupyState[i] == Power) MakePower(i, PowerHeight);
@@ -1027,7 +1032,7 @@ void BuildingBuilder(short OccupyState[]) {
 
 void MakePower(short UserPosition, short Health) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
+	StringColor(Yellow);
 
 	for (short i = CityHeight; i > CityHeight - Health; --i) {
 	
@@ -1035,14 +1040,14 @@ void MakePower(short UserPosition, short Health) {
 		putchar('E');
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(0, 23);
 }
 
 void MakeFactory(short UserPosition, short Health) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+	StringColor(Red);
 
 	for (short i = CityHeight; i > CityHeight - Health; --i) {
 
@@ -1050,14 +1055,14 @@ void MakeFactory(short UserPosition, short Health) {
 		putchar('T');
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(0, 23);
 }
 
 void MakeResidence(short UserPosition, short Health) {
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+	StringColor(Green);
 
 	for (short i = CityHeight; i > CityHeight - Health; --i) {
 
@@ -1065,7 +1070,7 @@ void MakeResidence(short UserPosition, short Health) {
 		putchar('M');
 	}
 
-	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
+	StringColor(White);
 
 	CurPos(0, 23);
 }
