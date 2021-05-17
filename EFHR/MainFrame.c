@@ -12,6 +12,9 @@ All rights reserved...
 #include <string.h>
 #include <Windows.h>
 
+#define CityHeight 20
+#define CityWidth 12
+
 #define CityLeft 52
 
 #define PowerHeight 4
@@ -207,7 +210,11 @@ int main(void) {
 						C.Health[C.UserPosition] = PowerHeight;
 						--C.B.PowerLeft;
 					}
-					else GameState = Canceled;
+					else {
+
+						SystemMessage(C.U.CityName, Canceled);
+						IsBuildingError = True;
+					}
 				}
 			}
 			else if (UserInput == 't') {
@@ -231,7 +238,11 @@ int main(void) {
 						C.Health[C.UserPosition] = FactoryHeight;
 						--C.B.FactoryLeft;
 					}
-					else GameState = Canceled;
+					else {
+
+						SystemMessage(C.U.CityName, Canceled);
+						IsBuildingError = True;
+					}
 				}
 			}
 			else if (UserInput == 'm') {
@@ -255,14 +266,17 @@ int main(void) {
 						C.Health[C.UserPosition] = ResidenceHeight;
 						--C.B.ResidenceLeft;
 					}
-					else GameState = Canceled;
+					else {
+
+						SystemMessage(C.U.CityName, Canceled);
+						IsBuildingError = True;
+					}
 				}
 			}
 
 			AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
 
 			if (IsBuildingError == False) SystemMessage(C.U.CityName, GameState);
-			if (GameState == Canceled) GameState = BuildingPhase;
 
 			BuildingBuilder(C.OccupyState);
 
@@ -1015,7 +1029,7 @@ void MakePower(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
 
-	for (short i = 20; i > 20 - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - Health; --i) {
 	
 		CurPos(CityLeft + UserPosition, i);
 		putchar('E');
@@ -1030,7 +1044,7 @@ void MakeFactory(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 
-	for (short i = 20; i > 20 - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - Health; --i) {
 
 		CurPos(CityLeft + UserPosition, i);
 		putchar('T');
@@ -1045,7 +1059,7 @@ void MakeResidence(short UserPosition, short Health) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
 
-	for (short i = 20; i > 20 - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - Health; --i) {
 
 		CurPos(CityLeft + UserPosition, i);
 		putchar('M');
