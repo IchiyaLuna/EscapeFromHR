@@ -706,82 +706,84 @@ void GameInitialize(short GamePhase) {
 
 		CursorView(0);
 
-		CurPos(1, 0);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 1);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
+		CurPos(1, 0); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); 
+		CurPos(1, 1); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
 		printf("¹ßÀü¼Ò"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : e¦­"); CurPos(1, 2);
-		printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´"); CurPos(1, 3);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : e¦­"); 
+		CurPos(1, 2); printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´");
+		CurPos(1, 3); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("°ø  Àå"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : t¦­"); CurPos(1, 4);
-		printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´"); CurPos(1, 5);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : t¦­");
+		CurPos(1, 4); printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´");
+		CurPos(1, 5); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
 		printf("ÁÖ°ÅÁö"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : m¦­"); CurPos(1, 6);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(1, 7);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 8);
-		printf("¦­ SYSTEM :                                  ¦­"); CurPos(1, 9);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(1, 10);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 11);
-		printf("¦­                                           ¦­"); CurPos(1, 12);
-		printf("¦­         <½ÅÀÔ »ç·É°üÀ» À§ÇÑ ¸Þ¸ð>         ¦­"); CurPos(1, 13);
-		printf("¦­                                           ¦­"); CurPos(1, 14);
-		printf("¦­           ÃëÀÓÀ» È¯¿µÇÏ³× »ç·É°ü          ¦­"); CurPos(1, 15);
-		printf("¦­  À§ ¸Þ´º¸¦ Âü°íÇÏ¿© µµ½Ã °Ç¼³À» ÁøÇàÇÏ°Ô  ¦­"); CurPos(1, 16);
-		printf("¦­     °¢ °Ç¹°Àº °íÀ¯ÀÇ ÀÚ¿øÀ» »ý»êÇÑ´Ù³×    ¦­"); CurPos(1, 17);
-		printf("¦­        ÀÌÈÄ »ý»ê ´Ü°è¿¡¼­´Â ÇÑ ¹ø¿¡       ¦­"); CurPos(1, 18);
-		printf("¦­      ÇÑ Á¾·ùÀÇ ÀÚ¿ø¸¸ »ý»êÀÌ °¡´ÉÇÏ³×     ¦­"); CurPos(1, 19);
-		printf("¦­      ±×·¯´Ï Çö¸íÇÏ°Ô °Ç¼³À» ÁøÇàÇÏ°Ô      ¦­"); CurPos(1, 20);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(1, 21);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 22);
-		printf("¦­ ÀÌ  µ¿¦­ ¿ÞÂÊ : a ¿À¸¥ÂÊ : d¦­ °ÔÀÓ Á¾·á : x¦­"); CurPos(1, 23);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		printf("¦­ ³ôÀÌ 0¦­ °Ç¼³ °¡´É ¼ö : 0¦­ °Ç¼³ : m¦­");
+		CurPos(1, 6); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		CurPos(1, 7); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		CurPos(1, 8); printf("¦­ SYSTEM :                                  ¦­");
+		CurPos(1, 9); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		CurPos(1, 10); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		CurPos(1, 11); printf("¦­                                           ¦­");
+		CurPos(1, 12); printf("¦­         <½ÅÀÔ »ç·É°üÀ» À§ÇÑ ¸Þ¸ð>         ¦­");
+		CurPos(1, 13); printf("¦­                                           ¦­");
+		CurPos(1, 14); printf("¦­           ÃëÀÓÀ» È¯¿µÇÏ³× »ç·É°ü          ¦­");
+		CurPos(1, 15); printf("¦­  À§ ¸Þ´º¸¦ Âü°íÇÏ¿© µµ½Ã °Ç¼³À» ÁøÇàÇÏ°Ô  ¦­");
+		CurPos(1, 16); printf("¦­     °¢ °Ç¹°Àº °íÀ¯ÀÇ ÀÚ¿øÀ» »ý»êÇÑ´Ù³×    ¦­");
+		CurPos(1, 17); printf("¦­        ÀÌÈÄ »ý»ê ´Ü°è¿¡¼­´Â ÇÑ ¹ø¿¡       ¦­");
+		CurPos(1, 18); printf("¦­      ÇÑ Á¾·ùÀÇ ÀÚ¿ø¸¸ »ý»êÀÌ °¡´ÉÇÏ³×     ¦­");
+		CurPos(1, 19); printf("¦­      ±×·¯´Ï Çö¸íÇÏ°Ô °Ç¼³À» ÁøÇàÇÏ°Ô      ¦­");
+		CurPos(1, 20); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		CurPos(1, 21); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		CurPos(1, 22); printf("¦­ ÀÌ  µ¿¦­ ¿ÞÂÊ : a ¿À¸¥ÂÊ : d¦­ °ÔÀÓ Á¾·á : x¦­");
+		CurPos(1, 23); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
 
 		BuildingHeight();
 
-		CurPos(50, 0);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(50, 1);
-		for (short i = 2; i < 22; ++i) {
-			printf("¦­             ¦­"); CurPos(50, i);
+		
+		CurPos(50, 0); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		for (short i = 1; i < 21; ++i) {
+			CurPos(50, i);
+			printf("¦­             ¦­");
 		}
-		printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´"); CurPos(50, 22);
-		printf("¦­             ¦­"); CurPos(50, 23);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(0, 23);
+		CurPos(50, 21); printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´");
+		CurPos(50, 22); printf("¦­             ¦­");
+		CurPos(50, 23); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); 
+		CurPos(0, 23);
 	}
 	else if (GamePhase == ProductionPhase) {
 
-		CurPos(1, 0);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 1);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
+		
+		CurPos(1, 0); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦³¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		CurPos(1, 1); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Yellow);
 		printf("¹ßÀü¼Ò"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Yellow);
 		printf("¿¡³ÊÁö"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­"); CurPos(1, 2);
-		printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´"); CurPos(1, 3);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
+		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­");
+		CurPos(1, 2); printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´");
+		CurPos(1, 3); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Red);
 		printf("°ø  Àå"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Red);
 		printf("±â  ¼ú"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­"); CurPos(1, 4);
-		printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´"); CurPos(1, 5);
-		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
+		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­");
+		CurPos(1, 4); printf("¦²¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¶¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦´");
+		CurPos(1, 5); printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), Green);
 		printf("ÁÖ°ÅÁö"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
 		printf("¦­ "); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), D_Green);
 		printf("ÀÚ  º»"); SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), White);
-		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­"); CurPos(1, 6);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(1, 10);
-		printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯"); CurPos(1, 11);
-		printf("¦­                                           ¦­"); CurPos(1, 12);
-		printf("¦­         <½ÅÀÔ »ç·É°üÀ» À§ÇÑ ¸Þ¸ð>         ¦­"); CurPos(1, 13);
-		printf("¦­                                           ¦­"); CurPos(1, 14);
-		printf("¦­    ¹æ±Ý °Ç¼³ÀÌ ¿Ï·áµÆ´Ù´Â ¼Ò½ÄÀ» µé¾ú³×   ¦­"); CurPos(1, 15);
-		printf("¦­          ÀÚ³×°¡ ÁÂ¿ì·Î ¿òÁ÷ÀÌ¸é           ¦­"); CurPos(1, 16);
-		printf("¦­         µµÂøÇÑ ±¸¿ªÀÇ °Ç¹°·ÎºÎÅÍ          ¦­"); CurPos(1, 17);
-		printf("¦­       °íÀ¯ÇÑ ÀÚ¿øÀ» È¹µæÇÒ ¼ö ÀÖ³×        ¦­"); CurPos(1, 18);
-		printf("¦­    ÇÊ¿äÇÑ ÀÚ¿øÀ» È¿À²ÀûÀ¸·Î ¸ð¾Æº¸°Ô      ¦­"); CurPos(1, 19);
-		printf("¦­                                           ¦­"); CurPos(1, 20);
-		printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°"); CurPos(0, 23);
+		printf("¦­ EEEEEEEEEEEEEE16¦­ ¿À ·ù ÀÓ¦­");
+		CurPos(1, 6); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦µ¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		CurPos(1, 10); printf("¦®¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¯");
+		CurPos(1, 11); printf("¦­                                           ¦­");
+		CurPos(1, 12); printf("¦­         <½ÅÀÔ »ç·É°üÀ» À§ÇÑ ¸Þ¸ð>         ¦­");
+		CurPos(1, 13); printf("¦­                                           ¦­");
+		CurPos(1, 14); printf("¦­    ¹æ±Ý °Ç¼³ÀÌ ¿Ï·áµÆ´Ù´Â ¼Ò½ÄÀ» µé¾ú³×   ¦­");
+		CurPos(1, 15); printf("¦­          ÀÚ³×°¡ ÁÂ¿ì·Î ¿òÁ÷ÀÌ¸é           ¦­");
+		CurPos(1, 16); printf("¦­         µµÂøÇÑ ±¸¿ªÀÇ °Ç¹°·ÎºÎÅÍ          ¦­");
+		CurPos(1, 17); printf("¦­       °íÀ¯ÇÑ ÀÚ¿øÀ» È¹µæÇÒ ¼ö ÀÖ³×        ¦­");
+		CurPos(1, 18); printf("¦­    ÇÊ¿äÇÑ ÀÚ¿øÀ» È¿À²ÀûÀ¸·Î ¸ð¾Æº¸°Ô      ¦­"); 
+		CurPos(1, 19); printf("¦­                                           ¦­");
+		CurPos(1, 20); printf("¦±¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦¬¦°");
+		CurPos(0, 23);
 	}
 }
 
