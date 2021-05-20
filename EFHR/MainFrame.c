@@ -91,16 +91,16 @@ typedef struct {
 
 typedef struct {
 
-	User U;
+	User Usr;
 
 	short UserPosition;
 
-	Buildings B;
+	Buildings Buil;
 
 	short OccupyState[12];
 	short Health[12];
 
-	Resources R;
+	Resources Res;
 }City;
 
 void SplashScreen(void);
@@ -140,9 +140,9 @@ void MakeResidence(short UserPosition, short Health);
 int main(void) {
 
 	City C = { .UserPosition = 0,
-		.B.PowerLeft = 4, .B.FactoryLeft = 4, .B.ResidenceLeft = 4,
+		.Buil.PowerLeft = 4, .Buil.FactoryLeft = 4, .Buil.ResidenceLeft = 4,
 		.OccupyState = { Blank }, 
-		.R.EnergyState = 0, .R.TechnologyState = 0, .R.CapitalState = 0 };
+		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0 };
 	
 	short GameState = BuildingPhase;
 	short IsBuildingError;
@@ -154,8 +154,8 @@ int main(void) {
 	
 	GameSetup();
 
-	UserInfo(C.U.UserName);
-	CityInfo(C.U.CityName);
+	UserInfo(C.Usr.UserName);
+	CityInfo(C.Usr.CityName);
 
 	GameInitialize(GameState);
 
@@ -195,7 +195,7 @@ int main(void) {
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.B.PowerLeft) {
+				else if (!C.Buil.PowerLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -207,7 +207,7 @@ int main(void) {
 
 						C.OccupyState[C.UserPosition] = Power;
 						C.Health[C.UserPosition] = PowerHeight;
-						--C.B.PowerLeft;
+						--C.Buil.PowerLeft;
 					}
 					else {
 
@@ -223,7 +223,7 @@ int main(void) {
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.B.FactoryLeft) {
+				else if (!C.Buil.FactoryLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -235,7 +235,7 @@ int main(void) {
 
 						C.OccupyState[C.UserPosition] = Factory;
 						C.Health[C.UserPosition] = FactoryHeight;
-						--C.B.FactoryLeft;
+						--C.Buil.FactoryLeft;
 					}
 					else {
 
@@ -251,7 +251,7 @@ int main(void) {
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.B.ResidenceLeft) {
+				else if (!C.Buil.ResidenceLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -263,7 +263,7 @@ int main(void) {
 
 						C.OccupyState[C.UserPosition] = Residence;
 						C.Health[C.UserPosition] = ResidenceHeight;
-						--C.B.ResidenceLeft;
+						--C.Buil.ResidenceLeft;
 					}
 					else {
 
@@ -273,26 +273,26 @@ int main(void) {
 				}
 			}
 
-			AvailableBuilding(C.B.PowerLeft, C.B.FactoryLeft, C.B.ResidenceLeft);
+			AvailableBuilding(C.Buil.PowerLeft, C.Buil.FactoryLeft, C.Buil.ResidenceLeft);
 
 			if (IsBuildingError == False) SystemMessage(GameState);
 
 			BuildingBuilder(C.OccupyState);
 
-			if (!C.B.PowerLeft && !C.B.FactoryLeft && !C.B.ResidenceLeft) {
+			if (!C.Buil.PowerLeft && !C.Buil.FactoryLeft && !C.Buil.ResidenceLeft) {
 
 				SystemMessage(EnterProductionPhase);
 				GameInitialize(ProductionPhase);
-				ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
+				ResourceDisplayer(C.Res.EnergyState, C.Res.TechnologyState, C.Res.CapitalState, C.OccupyState[C.UserPosition]);
 				GameState = ProductionPhase;
 			}
 		}
 		else if (GameState == ProductionPhase) {
 
-			if (C.OccupyState[C.UserPosition] == Power) C.R.EnergyState += C.Health[C.UserPosition];
-			else if (C.OccupyState[C.UserPosition] == Factory) C.R.TechnologyState += C.Health[C.UserPosition];
-			else if (C.OccupyState[C.UserPosition] == Residence) C.R.CapitalState += C.Health[C.UserPosition];
-			ResourceDisplayer(C.R.EnergyState, C.R.TechnologyState, C.R.CapitalState, C.OccupyState[C.UserPosition]);
+			if (C.OccupyState[C.UserPosition] == Power) C.Res.EnergyState += C.Health[C.UserPosition];
+			else if (C.OccupyState[C.UserPosition] == Factory) C.Res.TechnologyState += C.Health[C.UserPosition];
+			else if (C.OccupyState[C.UserPosition] == Residence) C.Res.CapitalState += C.Health[C.UserPosition];
+			ResourceDisplayer(C.Res.EnergyState, C.Res.TechnologyState, C.Res.CapitalState, C.OccupyState[C.UserPosition]);
 		}
 	}
 
