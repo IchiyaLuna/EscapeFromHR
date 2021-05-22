@@ -17,6 +17,7 @@ All rights reserved...
 
 #define CityLeft 52
 
+#define MaxHeight 4
 #define PowerHeight 4
 #define FactoryHeight 3
 #define ResidenceHeight 2
@@ -115,6 +116,7 @@ void CurPos(short x, short y);
 void CursorView(short show);
 void K_Putchar(char toPrint[], short index);
 void StringColor(short color);
+char GetKeyDown(void);
 
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
@@ -124,22 +126,22 @@ void CityInfo(char CityName[]);
 
 void GameInitialize(short GamePhase);
 void BuildingHeight(void);
-void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence);
-void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType);
+void AvailableBuilding(Buildings Buil);
+void ResourceDisplayer(City City);
 void SystemMessage(short MessageType);
 
 void UserPrint(short UserPosition);
 
 short BuildingConfirm(short BuildingType);
 
-void BuildingBuilder(short OccupyState[]);
+void BuildingBuilder(City City);
 void MakePower(short UserPosition, short Health);
 void MakeFactory(short UserPosition, short Health);
 void MakeResidence(short UserPosition, short Health);
 
 int main(void) {
 
-	City C = { .UserPosition = 0,
+	City City = { .UserPosition = 0,
 		.Buil.PowerLeft = 4, .Buil.FactoryLeft = 4, .Buil.ResidenceLeft = 4,
 		.OccupyState = { Blank }, 
 		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0 };
@@ -154,10 +156,11 @@ int main(void) {
 	
 	GameSetup();
 
-	UserInfo(C.Usr.UserName);
-	CityInfo(C.Usr.CityName);
+	UserInfo(City.Usr.UserName);
+	CityInfo(City.Usr.CityName);
 
 	GameInitialize(GameState);
+	AvailableBuilding(City.Buil);
 
 	SystemMessage(BuildingPhase);
 
@@ -167,21 +170,21 @@ int main(void) {
 
 		if (UserInput == 'x') break;
 
-		else if (UserInput == 'a') --C.UserPosition;
-		else if (UserInput == 'd') ++C.UserPosition;
+		else if (UserInput == 'a') --City.UserPosition;
+		else if (UserInput == 'd') ++City.UserPosition;
 
-		if (C.UserPosition < 0) {
+		if (City.UserPosition < 0) {
 
-			C.UserPosition = 0;
+			City.UserPosition = 0;
 			continue;
 		}
-		if (C.UserPosition > 11) {
+		if (City.UserPosition > 11) {
 
-			C.UserPosition = 11;
+			City.UserPosition = 11;
 			continue;
 		}
 
-		UserPrint(C.UserPosition);
+		UserPrint(City.UserPosition);
 		SystemMessage(GameState);
 
 		if (!(UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
@@ -190,12 +193,12 @@ int main(void) {
 
 			if (UserInput == 'e') {
 
-				if (C.OccupyState[C.UserPosition]) {
+				if (City.OccupyState[City.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.Buil.PowerLeft) {
+				else if (!City.Buil.PowerLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -205,9 +208,9 @@ int main(void) {
 
 					if (BuildingConfirm(Power)) {
 
-						C.OccupyState[C.UserPosition] = Power;
-						C.Health[C.UserPosition] = PowerHeight;
-						--C.Buil.PowerLeft;
+						City.OccupyState[City.UserPosition] = Power;
+						City.Health[City.UserPosition] = PowerHeight;
+						--City.Buil.PowerLeft;
 					}
 					else {
 
@@ -218,12 +221,12 @@ int main(void) {
 			}
 			else if (UserInput == 't') {
 
-				if (C.OccupyState[C.UserPosition]) {
+				if (City.OccupyState[City.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.Buil.FactoryLeft) {
+				else if (!City.Buil.FactoryLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -233,9 +236,9 @@ int main(void) {
 
 					if (BuildingConfirm(Factory)) {
 
-						C.OccupyState[C.UserPosition] = Factory;
-						C.Health[C.UserPosition] = FactoryHeight;
-						--C.Buil.FactoryLeft;
+						City.OccupyState[City.UserPosition] = Factory;
+						City.Health[City.UserPosition] = FactoryHeight;
+						--City.Buil.FactoryLeft;
 					}
 					else {
 
@@ -246,12 +249,12 @@ int main(void) {
 			}
 			else if (UserInput == 'm') {
 
-				if (C.OccupyState[C.UserPosition]) {
+				if (City.OccupyState[City.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!C.Buil.ResidenceLeft) {
+				else if (!City.Buil.ResidenceLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -261,9 +264,9 @@ int main(void) {
 
 					if (BuildingConfirm(Residence)) {
 
-						C.OccupyState[C.UserPosition] = Residence;
-						C.Health[C.UserPosition] = ResidenceHeight;
-						--C.Buil.ResidenceLeft;
+						City.OccupyState[City.UserPosition] = Residence;
+						City.Health[City.UserPosition] = ResidenceHeight;
+						--City.Buil.ResidenceLeft;
 					}
 					else {
 
@@ -273,26 +276,28 @@ int main(void) {
 				}
 			}
 
-			AvailableBuilding(C.Buil.PowerLeft, C.Buil.FactoryLeft, C.Buil.ResidenceLeft);
+			AvailableBuilding(City.Buil);
 
 			if (IsBuildingError == False) SystemMessage(GameState);
 
-			BuildingBuilder(C.OccupyState);
+			BuildingBuilder(City);
 
-			if (!C.Buil.PowerLeft && !C.Buil.FactoryLeft && !C.Buil.ResidenceLeft) {
+			if (!City.Buil.PowerLeft && !City.Buil.FactoryLeft && !City.Buil.ResidenceLeft) {
 
 				SystemMessage(EnterProductionPhase);
 				GameInitialize(ProductionPhase);
-				ResourceDisplayer(C.Res.EnergyState, C.Res.TechnologyState, C.Res.CapitalState, C.OccupyState[C.UserPosition]);
+				ResourceDisplayer(City);
 				GameState = ProductionPhase;
 			}
 		}
 		else if (GameState == ProductionPhase) {
 
-			if (C.OccupyState[C.UserPosition] == Power) C.Res.EnergyState += C.Health[C.UserPosition];
-			else if (C.OccupyState[C.UserPosition] == Factory) C.Res.TechnologyState += C.Health[C.UserPosition];
-			else if (C.OccupyState[C.UserPosition] == Residence) C.Res.CapitalState += C.Health[C.UserPosition];
-			ResourceDisplayer(C.Res.EnergyState, C.Res.TechnologyState, C.Res.CapitalState, C.OccupyState[C.UserPosition]);
+			if (City.OccupyState[City.UserPosition] == Power) City.Res.EnergyState += City.Health[City.UserPosition];
+			else if (City.OccupyState[City.UserPosition] == Factory) City.Res.TechnologyState += City.Health[City.UserPosition];
+			else if (City.OccupyState[City.UserPosition] == Residence) City.Res.CapitalState += City.Health[City.UserPosition];
+
+			ResourceDisplayer(City);
+			BuildingBuilder(City);
 		}
 	}
 
@@ -460,6 +465,11 @@ void K_Putchar(char toPrint[], short index) {
 void StringColor(short color) {
 
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
+}
+
+char GetKeyDown(void) {
+
+
 }
 
 void TypeAnimation(char toPrint[]) {
@@ -638,7 +648,7 @@ void CityInfo(char CityName[]) {
 
 	CONSOLE_SCREEN_BUFFER_INFO curInfo;
 
-	char Dummy;
+	char CharBuffer;
 	char UserInput;
 	char StringBuffer[11] = { 0 };
 
@@ -665,11 +675,11 @@ void CityInfo(char CityName[]) {
 		CurPos(curInfo.dwCursorPosition.X, 1);
 		CursorView(True);
 
-		Dummy = _getche();
-		if (Dummy > 32) StringBuffer[Index] = Dummy;
+		CharBuffer = _getche();
+		if (CharBuffer > 32) StringBuffer[Index] = CharBuffer;
 		++Index;
 
-		if (curInfo.dwCursorPosition.X == 62 || Dummy == 13) {
+		if (curInfo.dwCursorPosition.X == 62 || CharBuffer == 13) {
 
 			if (StringBuffer[0] == 0) {
 
@@ -688,14 +698,14 @@ void CityInfo(char CityName[]) {
 			}
 		}
 
-		else if (Dummy == 8 && curInfo.dwCursorPosition.X > 53) {
+		else if (CharBuffer == 8 && curInfo.dwCursorPosition.X > 53) {
 
 			Index -= 2;
 			if(Index > -1) StringBuffer[Index] = 0;
 			putchar(' ');
 			CurPos(curInfo.dwCursorPosition.X - 1, 1);
 		}
-		else if (Dummy == 8 && curInfo.dwCursorPosition.X == 53) {
+		else if (CharBuffer == 8 && curInfo.dwCursorPosition.X == 53) {
 
 			Index = 0;
 			CurPos(curInfo.dwCursorPosition.X, 1);
@@ -757,7 +767,6 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 23); printf("┗━━━━━━━┻━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━━━┛");
 
 		BuildingHeight();
-		AvailableBuilding(4, 4, 4);
 
 		CurPos(50, 0); printf("┏━━━━━━━━━━━━━┓");
 		for (short i = 1; i < 21; ++i) {
@@ -820,35 +829,35 @@ void BuildingHeight(void) {
 	CurPos(0, 23);
 }
 
-void AvailableBuilding(int AvailPower, int AvailFactory, int AvailResidence) {
+void AvailableBuilding(Buildings Buil) {
 
 	
 
-	if (!AvailPower) StringColor(Red);
-	CurPos(34, 1); printf("%d", AvailPower);
-	if (!AvailPower) StringColor(White);
+	if (!Buil.PowerLeft) StringColor(Red);
+	CurPos(34, 1); printf("%d", Buil.PowerLeft);
+	if (!Buil.PowerLeft) StringColor(White);
 
-	if (!AvailFactory) StringColor(Red);
-	CurPos(34, 3); printf("%d", AvailFactory);
-	if (!AvailFactory) StringColor(White);
+	if (!Buil.FactoryLeft) StringColor(Red);
+	CurPos(34, 3); printf("%d", Buil.FactoryLeft);
+	if (!Buil.FactoryLeft) StringColor(White);
 
-	if (!AvailResidence) StringColor(Red);
-	CurPos(34, 5); printf("%d", AvailResidence);
-	if (!AvailResidence) StringColor(White);
+	if (!Buil.ResidenceLeft) StringColor(Red);
+	CurPos(34, 5); printf("%d", Buil.ResidenceLeft);
+	if (!Buil.ResidenceLeft) StringColor(White);
 
 	CurPos(0, 23);
 }
 
-void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, short ResourceType) {
+void ResourceDisplayer(City City) {
 
 	
 	CurPos(19, 1); 
 	
-	printf("%-16d", EnergyState);
+	printf("%-16d", City.Res.EnergyState);
 
 	CurPos(37, 1);
 
-	if (ResourceType == Power) {
+	if (City.OccupyState == Power) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -863,11 +872,11 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 
 	CurPos(19, 3);
 	
-	printf("%-16d", TechnologyState); 
+	printf("%-16d", City.Res.TechnologyState); 
 	
 	CurPos(37, 3);
 
-	if (ResourceType == Factory) {
+	if (City.OccupyState == Factory) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -882,11 +891,11 @@ void ResourceDisplayer(int EnergyState, int TechnologyState, int CapitalState, s
 
 	CurPos(19, 5);
 
-	printf("%-16d", CapitalState); 
+	printf("%-16d", City.Res.CapitalState); 
 	
 	CurPos(37, 5);
 
-	if (ResourceType == Residence) {
+	if (City.OccupyState == Residence) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -1020,14 +1029,14 @@ short BuildingConfirm(short BuildingType) {
 	return False;
 }
 
-void BuildingBuilder(short OccupyState[]) {
+void BuildingBuilder(City City) {
 
 	for (short i = 0; i < CityWidth; ++i) {
 
-		if (!OccupyState[i]) continue;
-		if (OccupyState[i] == Power) MakePower(i, PowerHeight);
-		else if (OccupyState[i] == Factory) MakeFactory(i, FactoryHeight);
-		else if (OccupyState[i] == Residence) MakeResidence(i, ResidenceHeight);
+		if (!City.OccupyState[i]) continue;
+		if (City.OccupyState[i] == Power) MakePower(i, City.Health[i]);
+		else if (City.OccupyState[i] == Factory) MakeFactory(i, City.Health[i]);
+		else if (City.OccupyState[i] == Residence) MakeResidence(i, City.Health[i]);
 	}
 }
 
@@ -1035,10 +1044,14 @@ void MakePower(short UserPosition, short Health) {
 
 	StringColor(Yellow);
 
-	for (short i = CityHeight; i > CityHeight - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - MaxHeight; --i) {
 	
 		CurPos(CityLeft + UserPosition, i);
-		putchar('E');
+
+		if (i > CityHeight - Health)
+			putchar('E');
+		else
+			putchar(' ');
 	}
 
 	StringColor(White);
@@ -1050,10 +1063,14 @@ void MakeFactory(short UserPosition, short Health) {
 
 	StringColor(Red);
 
-	for (short i = CityHeight; i > CityHeight - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - MaxHeight; --i) {
 
 		CurPos(CityLeft + UserPosition, i);
-		putchar('T');
+
+		if (i > CityHeight - Health)
+			putchar('T');
+		else
+			putchar(' ');
 	}
 
 	StringColor(White);
@@ -1065,10 +1082,14 @@ void MakeResidence(short UserPosition, short Health) {
 
 	StringColor(Green);
 
-	for (short i = CityHeight; i > CityHeight - Health; --i) {
+	for (short i = CityHeight; i > CityHeight - MaxHeight; --i) {
 
 		CurPos(CityLeft + UserPosition, i);
-		putchar('M');
+
+		if (i > CityHeight - Health)
+			putchar('M');
+		else
+			putchar(' ');
 	}
 
 	StringColor(White);
