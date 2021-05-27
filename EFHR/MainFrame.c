@@ -117,7 +117,7 @@ void CursorView(short show);
 void K_Putchar(char toPrint[], short index);
 void StringColor(short color);
 char GetKeyDown(void);
-short ClockGenerator(void);
+short ClockGenerator(short MilliSecond);
 
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
