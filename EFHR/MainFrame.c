@@ -9,12 +9,14 @@ All rights reserved...
 
 #include <stdio.h>
 #include <conio.h>
+#include <time.h>
 #include <string.h>
 #include <Windows.h>
 
 #define CityHeight 20
 #define CityWidth 12
 
+#define CityTop 1
 #define CityLeft 52
 
 #define MaxHeight 4
@@ -104,6 +106,12 @@ typedef struct {
 	Resources Res;
 }City;
 
+typedef struct Rain{
+
+	short IsStarExist[12];
+	short StarHeight[12];
+}Rain;
+
 void SplashScreen(void);
 void CharBlink(char toBlink, short show, short color);
 
@@ -140,17 +148,30 @@ void MakePower(short UserPosition, short Health);
 void MakeFactory(short UserPosition, short Health);
 void MakeResidence(short UserPosition, short Health);
 
+void DisplayShield(short DamagePoint);
+void MakeItRa1n(City* CityPtr, Rain* RainPtr);
+void RaserBeam(City City, Rain* RainPtr);
+
 int main(void) {
 
-	City City = { .UserPosition = 0,
+	City CityStr = { .UserPosition = 0,
 		.Buil.PowerLeft = 4, .Buil.FactoryLeft = 4, .Buil.ResidenceLeft = 4,
 		.OccupyState = { Blank },
 		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0 };
 
+	City* CityPtr = &CityStr;
+
+	Rain RainStr = { .IsStarExist = { Blank }, .StarHeight = { Blank } };
+
+	Rain* RainPtr = &RainStr;
+
 	short GameState = BuildingPhase;
 	short MilliSecond = 0;
+	short RainCounter = 0;
 	short IsBuildingError;
 	char UserInput;
+
+	srand((unsigned int)time(NULL));
 
 	system("title Hard Rain Impact v1.0");
 
@@ -158,11 +179,11 @@ int main(void) {
 
 	GameSetup();
 
-	UserInfo(City.Usr.UserName);
-	CityInfo(City.Usr.CityName);
+	UserInfo(CityStr.Usr.UserName);
+	CityInfo(CityStr.Usr.CityName);
 
 	GameInitialize(GameState);
-	AvailableBuilding(City.Buil);
+	AvailableBuilding(CityStr.Buil);
 
 	SystemMessage(BuildingPhase);
 
@@ -172,21 +193,21 @@ int main(void) {
 
 		if (UserInput == 'x') break;
 
-		else if (UserInput == 'a') --City.UserPosition;
-		else if (UserInput == 'd') ++City.UserPosition;
+		else if (UserInput == 'a') --CityStr.UserPosition;
+		else if (UserInput == 'd') ++CityStr.UserPosition;
 
-		if (City.UserPosition < 0) {
+		if (CityStr.UserPosition < 0) {
 
-			City.UserPosition = 0;
+			CityStr.UserPosition = 0;
 			continue;
 		}
-		if (City.UserPosition > 11) {
+		if (CityStr.UserPosition > 11) {
 
-			City.UserPosition = 11;
+			CityStr.UserPosition = 11;
 			continue;
 		}
 
-		UserPrint(City.UserPosition);
+		UserPrint(CityStr.UserPosition);
 		//SystemMessage(GameState);
 
 		if (!(UserInput == False || UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
@@ -195,12 +216,12 @@ int main(void) {
 
 			if (UserInput == 'e') {
 
-				if (City.OccupyState[City.UserPosition]) {
+				if (CityStr.OccupyState[CityStr.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!City.Buil.PowerLeft) {
+				else if (!CityStr.Buil.PowerLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -210,9 +231,9 @@ int main(void) {
 
 					if (BuildingConfirm(Power)) {
 
-						City.OccupyState[City.UserPosition] = Power;
-						City.Health[City.UserPosition] = PowerHeight;
-						--City.Buil.PowerLeft;
+						CityStr.OccupyState[CityStr.UserPosition] = Power;
+						CityStr.Health[CityStr.UserPosition] = PowerHeight;
+						--CityStr.Buil.PowerLeft;
 					}
 					else {
 
@@ -223,12 +244,12 @@ int main(void) {
 			}
 			else if (UserInput == 't') {
 
-				if (City.OccupyState[City.UserPosition]) {
+				if (CityStr.OccupyState[CityStr.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!City.Buil.FactoryLeft) {
+				else if (!CityStr.Buil.FactoryLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -238,9 +259,9 @@ int main(void) {
 
 					if (BuildingConfirm(Factory)) {
 
-						City.OccupyState[City.UserPosition] = Factory;
-						City.Health[City.UserPosition] = FactoryHeight;
-						--City.Buil.FactoryLeft;
+						CityStr.OccupyState[CityStr.UserPosition] = Factory;
+						CityStr.Health[CityStr.UserPosition] = FactoryHeight;
+						--CityStr.Buil.FactoryLeft;
 					}
 					else {
 
@@ -251,12 +272,12 @@ int main(void) {
 			}
 			else if (UserInput == 'm') {
 
-				if (City.OccupyState[City.UserPosition]) {
+				if (CityStr.OccupyState[CityStr.UserPosition]) {
 
 					SystemMessage(AlreadyOccupied);
 					IsBuildingError = True;
 				}
-				else if (!City.Buil.ResidenceLeft) {
+				else if (!CityStr.Buil.ResidenceLeft) {
 
 					SystemMessage(NotingLeft);
 					IsBuildingError = True;
@@ -266,9 +287,9 @@ int main(void) {
 
 					if (BuildingConfirm(Residence)) {
 
-						City.OccupyState[City.UserPosition] = Residence;
-						City.Health[City.UserPosition] = ResidenceHeight;
-						--City.Buil.ResidenceLeft;
+						CityStr.OccupyState[CityStr.UserPosition] = Residence;
+						CityStr.Health[CityStr.UserPosition] = ResidenceHeight;
+						--CityStr.Buil.ResidenceLeft;
 					}
 					else {
 
@@ -278,31 +299,43 @@ int main(void) {
 				}
 			}
 
-			AvailableBuilding(City.Buil);
+			AvailableBuilding(CityStr.Buil);
 
 			if (IsBuildingError == False) SystemMessage(GameState);
 
-			BuildingBuilder(City);
+			BuildingBuilder(CityStr);
 
-			if (!City.Buil.PowerLeft && !City.Buil.FactoryLeft && !City.Buil.ResidenceLeft) {
+			if (!CityStr.Buil.PowerLeft && !CityStr.Buil.FactoryLeft && !CityStr.Buil.ResidenceLeft) {
 
 				SystemMessage(EnterProductionPhase);
 				GameInitialize(ProductionPhase);
-				ResourceDisplayer(City);
+				ResourceDisplayer(CityStr);
 				GameState = ProductionPhase;
 			}
 		}
 		else if (GameState == ProductionPhase) {
 
-			if (MilliSecond == 1000) {
 
-				if (City.OccupyState[City.UserPosition] == Power) City.Res.EnergyState += City.Health[City.UserPosition];
-				else if (City.OccupyState[City.UserPosition] == Factory) City.Res.TechnologyState += City.Health[City.UserPosition];
-				else if (City.OccupyState[City.UserPosition] == Residence) City.Res.CapitalState += City.Health[City.UserPosition];
+			if (UserInput == ' ') {
+
+				RaserBeam(CityStr, RainPtr);
 			}
 
-			ResourceDisplayer(City);
-			BuildingBuilder(City);
+			if (MilliSecond == 1000) {
+
+				if (CityStr.OccupyState[CityStr.UserPosition] == Power) CityStr.Res.EnergyState += CityStr.Health[CityStr.UserPosition];
+				else if (CityStr.OccupyState[CityStr.UserPosition] == Factory) CityStr.Res.TechnologyState += CityStr.Health[CityStr.UserPosition];
+				else if (CityStr.OccupyState[CityStr.UserPosition] == Residence) CityStr.Res.CapitalState += CityStr.Health[CityStr.UserPosition];
+
+				if (RainCounter < 10) ++RainCounter;
+				if (RainCounter == 10) {
+
+					MakeItRa1n(CityPtr, RainPtr);
+				}
+			}
+			
+			ResourceDisplayer(CityStr);
+			BuildingBuilder(CityStr);
 		}
 
 		MilliSecond = ClockGenerator(MilliSecond);
@@ -487,7 +520,7 @@ short ClockGenerator(short MilliSecond) {
 	Sleep(50);
 	MilliSecond += 50;
 
-	//return MilliSecond;
+	return MilliSecond;
 }
 
 void TypeAnimation(char toPrint[]) {
@@ -1113,4 +1146,106 @@ void MakeResidence(short UserPosition, short Health) {
 	StringColor(White);
 
 	CurPos(0, 23);
+}
+
+void DisplayShield(short DamagePoint) {
+
+	for (short i = 0; i < 12; ++i) {
+
+		if (i == DamagePoint) StringColor(Red);
+		else StringColor(Cyan);
+
+		CurPos(CityLeft + i, CityHeight - 4);
+
+		printf("¦¬");
+
+		StringColor(White);
+	}
+
+	CurPos(0, 23);
+}
+
+void MakeItRa1n(City* CityPtr, Rain* RainPtr) {
+
+	short RandomPercent;
+	short RandomPosition = -1;
+	short IsBlankSpaceExist = False;
+	short IsBuildingDestroyed = False;
+
+	RandomPercent = rand() % 100;
+
+	if (RandomPercent < 30) {
+
+		for (short i = 0; i < 12; ++i) {
+			
+			if (!RainPtr->IsStarExist[i]) {
+
+				IsBlankSpaceExist = True;
+				break;
+			}
+		}
+
+		if (IsBlankSpaceExist) {
+
+			while (True) {
+
+				RandomPosition = rand() % 12;
+				if (!RainPtr->IsStarExist[RandomPosition]) break;
+			}
+
+			RainPtr->IsStarExist[RandomPosition] = True;
+			RainPtr->StarHeight[RandomPosition] = 0;
+		}
+	}
+
+	for (short i = 0; i < 12; ++i) {
+
+		if (i == RandomPosition) continue;
+
+		if (RainPtr->IsStarExist[i]) ++RainPtr->StarHeight[i];
+
+		if (RainPtr->StarHeight[i] > 14) {
+
+			RainPtr->StarHeight[i] = 0;
+			RainPtr->IsStarExist[i] = False;
+
+			--CityPtr->Health[i];
+
+			IsBuildingDestroyed = True;
+
+			CurPos(CityLeft + i, 15);
+			putchar(' ');
+
+			DisplayShield(i);
+		}
+	}
+	if (!IsBuildingDestroyed) DisplayShield(-1);
+
+	for (short i = 0; i < 12; ++i) {
+
+		if (RainPtr->StarHeight[i]) {
+
+			CurPos(CityLeft + i, RainPtr->StarHeight[i]);
+			putchar(' ');
+		}
+
+		CurPos(CityLeft + i, CityTop + RainPtr->StarHeight[i]);
+
+		StringColor(D_Red);
+		if (RainPtr->IsStarExist[i]) putchar('*');
+		StringColor(White);
+	}
+
+	CurPos(0, 23);
+}
+
+void RaserBeam(City City, Rain* RainPtr) {
+
+	if (City.Res.EnergyState < 10) return;
+	City.Res.EnergyState -= 10;
+
+	for (short i = CityTop; i < 15; ++i) {
+
+
+	}
 }
