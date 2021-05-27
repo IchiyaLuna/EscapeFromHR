@@ -26,24 +26,24 @@ All rights reserved...
 
 enum { False, True };
 
-enum { 
+enum {
 
-	Black, 
-	D_Blue, 
-	D_Green, 
-	D_Cyan, 
-	D_Red, 
-	D_Violet, 
-	D_Yellow, 
-	Gray, 
-	D_Gray, 
-	Blue, 
-	Green, 
-	Cyan, 
-	Red, 
-	Violet, 
-	Yellow, 
-	White 
+	Black,
+	D_Blue,
+	D_Green,
+	D_Cyan,
+	D_Red,
+	D_Violet,
+	D_Yellow,
+	Gray,
+	D_Gray,
+	Blue,
+	Green,
+	Cyan,
+	Red,
+	Violet,
+	Yellow,
+	White
 };
 
 enum BuildingType
@@ -108,7 +108,7 @@ void SplashScreen(void);
 void CharBlink(char toBlink, short show, short color);
 
 void GameSetup(void);
- 
+
 void StoryDescriptor(void);
 
 void PAC(void);
@@ -117,6 +117,7 @@ void CursorView(short show);
 void K_Putchar(char toPrint[], short index);
 void StringColor(short color);
 char GetKeyDown(void);
+short ClockGenerator(void);
 
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
@@ -143,17 +144,18 @@ int main(void) {
 
 	City City = { .UserPosition = 0,
 		.Buil.PowerLeft = 4, .Buil.FactoryLeft = 4, .Buil.ResidenceLeft = 4,
-		.OccupyState = { Blank }, 
+		.OccupyState = { Blank },
 		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0 };
-	
+
 	short GameState = BuildingPhase;
+	short MilliSecond = 0;
 	short IsBuildingError;
 	char UserInput;
 
 	system("title Hard Rain Impact v1.0");
 
 	SplashScreen();
-	
+
 	GameSetup();
 
 	UserInfo(City.Usr.UserName);
@@ -166,7 +168,7 @@ int main(void) {
 
 	while (True) {
 
-		UserInput = _getch();
+		UserInput = GetKeyDown();
 
 		if (UserInput == 'x') break;
 
@@ -185,9 +187,9 @@ int main(void) {
 		}
 
 		UserPrint(City.UserPosition);
-		SystemMessage(GameState);
+		//SystemMessage(GameState);
 
-		if (!(UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
+		if (!(UserInput == False || UserInput == 'a' || UserInput == 'd') && GameState == BuildingPhase) {
 
 			IsBuildingError = False;
 
@@ -292,13 +294,18 @@ int main(void) {
 		}
 		else if (GameState == ProductionPhase) {
 
-			if (City.OccupyState[City.UserPosition] == Power) City.Res.EnergyState += City.Health[City.UserPosition];
-			else if (City.OccupyState[City.UserPosition] == Factory) City.Res.TechnologyState += City.Health[City.UserPosition];
-			else if (City.OccupyState[City.UserPosition] == Residence) City.Res.CapitalState += City.Health[City.UserPosition];
+			if (MilliSecond == 1000) {
+
+				if (City.OccupyState[City.UserPosition] == Power) City.Res.EnergyState += City.Health[City.UserPosition];
+				else if (City.OccupyState[City.UserPosition] == Factory) City.Res.TechnologyState += City.Health[City.UserPosition];
+				else if (City.OccupyState[City.UserPosition] == Residence) City.Res.CapitalState += City.Health[City.UserPosition];
+			}
 
 			ResourceDisplayer(City);
 			BuildingBuilder(City);
 		}
+
+		MilliSecond = ClockGenerator(MilliSecond);
 	}
 
 	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 사령관님.");
@@ -469,7 +476,18 @@ void StringColor(short color) {
 
 char GetKeyDown(void) {
 
+	if (_kbhit()) return _getch();
 
+	else return False;
+}
+
+short ClockGenerator(short MilliSecond) {
+
+	if (MilliSecond == 1000) MilliSecond = 0;
+	Sleep(50);
+	MilliSecond += 50;
+
+	//return MilliSecond;
 }
 
 void TypeAnimation(char toPrint[]) {
@@ -609,7 +627,7 @@ void UserInfo(char UserName[]) {
 				Sleep(500);
 			}
 			else {
-			
+
 				strcpy_s(UserName, 11, StringBuffer);
 				break;
 			}
@@ -701,7 +719,7 @@ void CityInfo(char CityName[]) {
 		else if (CharBuffer == 8 && curInfo.dwCursorPosition.X > 53) {
 
 			Index -= 2;
-			if(Index > -1) StringBuffer[Index] = 0;
+			if (Index > -1) StringBuffer[Index] = 0;
 			putchar(' ');
 			CurPos(curInfo.dwCursorPosition.X - 1, 1);
 		}
@@ -735,10 +753,10 @@ void GameInitialize(short GamePhase) {
 
 		CursorView(False);
 
-		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓"); 
+		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓");
 		CurPos(1, 1); printf("┃ "); StringColor(Yellow);
 		printf("발전소"); StringColor(White);
-		printf("┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : e┃"); 
+		printf("┃ 높이 0┃ 건설 가능 수 : 0┃ 건설 : e┃");
 		CurPos(1, 2); printf("┣━━━━━━━╋━━━━━━━╋━━━━━━━━━━━━━━━━━╋━━━━━━━━━┫");
 		CurPos(1, 3); printf("┃ "); StringColor(Red);
 		printf("공  장"); StringColor(White);
@@ -775,7 +793,7 @@ void GameInitialize(short GamePhase) {
 		}
 		CurPos(50, 21); printf("┣━━━━━━━━━━━━━┫");
 		CurPos(50, 22); printf("┃             ┃");
-		CurPos(50, 23); printf("┗━━━━━━━━━━━━━┛"); 
+		CurPos(50, 23); printf("┗━━━━━━━━━━━━━┛");
 
 		UserPrint(0);
 
@@ -783,7 +801,7 @@ void GameInitialize(short GamePhase) {
 	}
 	else if (GamePhase == ProductionPhase) {
 
-		
+
 		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓");
 		CurPos(1, 1); printf("┃ "); StringColor(Yellow);
 		printf("발전소"); StringColor(White);
@@ -811,7 +829,7 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 15); printf("┃          자네가 좌우로 움직이면           ┃");
 		CurPos(1, 16); printf("┃         도착한 구역의 건물로부터          ┃");
 		CurPos(1, 17); printf("┃       고유한 자원을 획득할 수 있네        ┃");
-		CurPos(1, 18); printf("┃    필요한 자원을 효율적으로 모아보게      ┃"); 
+		CurPos(1, 18); printf("┃    필요한 자원을 효율적으로 모아보게      ┃");
 		CurPos(1, 19); printf("┃                                           ┃");
 		CurPos(1, 20); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
@@ -821,7 +839,7 @@ void GameInitialize(short GamePhase) {
 
 void BuildingHeight(void) {
 
-	
+
 	CurPos(16, 1); printf("%d", PowerHeight);
 	CurPos(16, 3); printf("%d", FactoryHeight);
 	CurPos(16, 5); printf("%d", ResidenceHeight);
@@ -831,7 +849,7 @@ void BuildingHeight(void) {
 
 void AvailableBuilding(Buildings Buil) {
 
-	
+
 
 	if (!Buil.PowerLeft) StringColor(Red);
 	CurPos(34, 1); printf("%d", Buil.PowerLeft);
@@ -850,14 +868,14 @@ void AvailableBuilding(Buildings Buil) {
 
 void ResourceDisplayer(City City) {
 
-	
-	CurPos(19, 1); 
-	
+
+	CurPos(19, 1);
+
 	printf("%-16d", City.Res.EnergyState);
 
 	CurPos(37, 1);
 
-	if (City.OccupyState == Power) {
+	if (City.OccupyState[City.UserPosition] == Power) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -865,18 +883,18 @@ void ResourceDisplayer(City City) {
 	else {
 
 		StringColor(Red);
-		printf("대 기 중"); 
+		printf("대 기 중");
 	}
 
 	StringColor(White);
 
 	CurPos(19, 3);
-	
-	printf("%-16d", City.Res.TechnologyState); 
-	
+
+	printf("%-16d", City.Res.TechnologyState);
+
 	CurPos(37, 3);
 
-	if (City.OccupyState == Factory) {
+	if (City.OccupyState[City.UserPosition] == Factory) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -884,18 +902,18 @@ void ResourceDisplayer(City City) {
 	else {
 
 		StringColor(Red);
-		printf("대 기 중"); 
+		printf("대 기 중");
 	}
 
 	StringColor(White);
 
 	CurPos(19, 5);
 
-	printf("%-16d", City.Res.CapitalState); 
-	
+	printf("%-16d", City.Res.CapitalState);
+
 	CurPos(37, 5);
 
-	if (City.OccupyState == Residence) {
+	if (City.OccupyState[City.UserPosition] == Residence) {
 
 		StringColor(Green);
 		printf("생 산 중");
@@ -920,7 +938,7 @@ void SystemMessage(short MessageType) {
 	CurPos(12, 8);
 
 	switch (MessageType) {
-	
+
 	case BuildingPhase:
 
 		printf("건물 건설을 진행해주세요.");
@@ -929,7 +947,7 @@ void SystemMessage(short MessageType) {
 	case EnterProductionPhase:
 
 		for (int i = 0; i < 4; ++i) {
-			
+
 			CurPos(12, 8);
 
 			for (short i = 0; i < 33; ++i)putchar(' ');
@@ -981,7 +999,7 @@ void SystemMessage(short MessageType) {
 		printf("취소되었습니다.");
 		StringColor(White);
 		break;
-		
+
 	default:
 
 		StringColor(Red);
@@ -1045,7 +1063,7 @@ void MakePower(short UserPosition, short Health) {
 	StringColor(Yellow);
 
 	for (short i = CityHeight; i > CityHeight - MaxHeight; --i) {
-	
+
 		CurPos(CityLeft + UserPosition, i);
 
 		if (i > CityHeight - Health)
