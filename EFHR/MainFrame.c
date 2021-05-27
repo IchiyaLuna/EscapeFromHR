@@ -48,6 +48,11 @@ enum {
 	White
 };
 
+enum {
+
+	Back_Cyan = 191
+};
+
 enum BuildingType
 {
 
@@ -138,6 +143,7 @@ void BuildingHeight(void);
 void AvailableBuilding(Buildings Buil);
 void ResourceDisplayer(City City);
 void SystemMessage(short MessageType);
+void HardrainAlert(short Timer);
 
 void UserPrint(short UserPosition);
 
@@ -150,7 +156,7 @@ void MakeResidence(short UserPosition, short Health);
 
 void DisplayShield(short DamagePoint);
 void MakeItRa1n(City* CityPtr, Rain* RainPtr);
-void RaserBeam(City City, Rain* RainPtr);
+void RaserBeam(City* CityPtr, Rain* RainPtr);
 
 int main(void) {
 
@@ -314,11 +320,12 @@ int main(void) {
 			}
 		}
 		else if (GameState == ProductionPhase) {
-
+		
+			HardrainAlert(10 - RainCounter);
 
 			if (UserInput == ' ') {
 
-				RaserBeam(CityStr, RainPtr);
+				RaserBeam(CityPtr, RainPtr);
 			}
 
 			if (MilliSecond == 1000) {
@@ -327,11 +334,15 @@ int main(void) {
 				else if (CityStr.OccupyState[CityStr.UserPosition] == Factory) CityStr.Res.TechnologyState += CityStr.Health[CityStr.UserPosition];
 				else if (CityStr.OccupyState[CityStr.UserPosition] == Residence) CityStr.Res.CapitalState += CityStr.Health[CityStr.UserPosition];
 
-				if (RainCounter < 10) ++RainCounter;
+				if (RainCounter < 10) {
+
+					++RainCounter;
+				}
 				if (RainCounter == 10) {
 
 					MakeItRa1n(CityPtr, RainPtr);
 				}
+				
 			}
 			
 			ResourceDisplayer(CityStr);
@@ -996,8 +1007,6 @@ void SystemMessage(short MessageType) {
 		}
 
 		StringColor(White);
-		CurPos(12, 8);
-		printf("자원 생산을 진행해주세요.");
 		break;
 
 	case ProductionPhase:
@@ -1040,6 +1049,26 @@ void SystemMessage(short MessageType) {
 		StringColor(White);
 		break;
 	}
+
+	CurPos(0, 23);
+}
+
+void HardrainAlert(short Timer) {
+
+	CurPos(12, 8);
+
+	for (short i = 0; i < 33; ++i)putchar(' ');
+
+	CurPos(12, 8);
+
+	StringColor(Red);
+
+	if (Timer > 0)
+		printf("HardRain 까지 %2d시간 남았습니다.", Timer);
+	else
+		printf("HardRain이 떨어집니다...");
+
+	StringColor(White);
 
 	CurPos(0, 23);
 }
@@ -1239,13 +1268,29 @@ void MakeItRa1n(City* CityPtr, Rain* RainPtr) {
 	CurPos(0, 23);
 }
 
-void RaserBeam(City City, Rain* RainPtr) {
+void RaserBeam(City* CityPtr, Rain* RainPtr) {
 
-	if (City.Res.EnergyState < 10) return;
-	City.Res.EnergyState -= 10;
+	if (CityPtr->Res.EnergyState < 10) return;
+	CityPtr->Res.EnergyState -= 10;
 
-	for (short i = CityTop; i < 15; ++i) {
+	for (short i = CityTop; i < 16; ++i) {
 
-
+		CurPos(CityLeft + CityPtr->UserPosition, i);
+		StringColor(Back_Cyan);
+		putchar(' ');
 	}
+
+	Sleep(100);
+
+	for (short i = CityTop; i < 16; ++i) {
+
+		CurPos(CityLeft + CityPtr->UserPosition, i);
+		StringColor(White);
+		putchar(' ');
+	}
+
+	RainPtr->IsStarExist[CityPtr->UserPosition] = False;
+	RainPtr->StarHeight[CityPtr->UserPosition] = 0;
+
+	CurPos(0, 23);
 }
