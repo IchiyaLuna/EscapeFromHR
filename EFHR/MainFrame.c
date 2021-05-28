@@ -566,8 +566,8 @@ void TypeAnimation(char toPrint[]) {
 		if (toPrint[i] != ' ' && toPrint[i] != '.') {
 
 			K_Putchar(toPrint, i);
-			Beep(_G, 25);
-			//Sleep(25);
+			Beep(_G, 1);
+			Sleep(24);
 		}
 		else {
 
@@ -1122,12 +1122,19 @@ short BuildingConfirm(short BuildingType) {
 
 	UserInput = _getch();
 
-	Beep(_C, 25);
+	if (BuildingType == Power && UserInput == 'e') {
 
-	if ((BuildingType == Power && UserInput == 'e') ||
-		(BuildingType == Factory && UserInput == 't') ||
-		(BuildingType == Residence && UserInput == 'm')) {
+		Beep(_C, 25);
+		return True;
+	}
+	if (BuildingType == Factory && UserInput == 't') {
 
+		Beep(_D, 25);
+		return True;
+	}
+	if (BuildingType == Residence && UserInput == 'm') {
+
+		Beep(_E, 25);
 		return True;
 	}
 
