@@ -1411,23 +1411,44 @@ short BuildingConfirm(short BuildingType) {
 
 	char UserInput;
 
+	HANDLE hThread[1];
+	DWORD dwThreadID;
+	
 	SystemMessage(Confirm);
 
 	UserInput = _getch();
 
 	if (BuildingType == Power && UserInput == 'e') {
 
-		Beep((DWORD)_C, 100);
+		for (short i = 0; i < 3; ++i) {
+
+			hThread[0] = (HANDLE)_beginthreadex(NULL, 0, BeepPlayer, NULL, 0, (unsigned*)&dwThreadID);
+
+			if (hThread[0]) CloseHandle(hThread[0]);
+		}
+
 		return True;
 	}
 	if (BuildingType == Factory && UserInput == 't') {
 
-		Beep((DWORD)_D, 100);
+		for (short i = 0; i < 3; ++i) {
+
+			hThread[0] = (HANDLE)_beginthreadex(NULL, 0, BeepPlayer, NULL, 0, (unsigned*)&dwThreadID);
+
+			if (hThread[0]) CloseHandle(hThread[0]);
+		}
+
 		return True;
 	}
 	if (BuildingType == Residence && UserInput == 'm') {
 
-		Beep((DWORD)_E, 100);
+		for (short i = 0; i < 3; ++i) {
+
+			hThread[0] = (HANDLE)_beginthreadex(NULL, 0, BeepPlayer, NULL, 0, (unsigned*)&dwThreadID);
+
+			if (hThread[0]) CloseHandle(hThread[0]);
+		}
+
 		return True;
 	}
 
