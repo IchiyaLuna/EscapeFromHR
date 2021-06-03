@@ -12,6 +12,7 @@ All rights reserved...
 #include <time.h>
 #include <string.h>
 #include <Windows.h>
+#include <process.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 
@@ -28,12 +29,13 @@ All rights reserved...
 
 #define DialogLength 63
 
-#define Tic 1000
+#define Tic 500
 
 #define _C 1046.502
 #define _D 1108.731
 #define _E 1318.510
 #define _G 1760.000
+#define Morse 800
 
 enum { False, True };
 
@@ -59,7 +61,16 @@ enum {
 
 enum {
 
-	Back_Cyan = 191
+	LEFT = 75,
+	RIGHT = 77,
+	UP = 72,
+	DOWN = 80
+};
+
+enum {
+
+	Back_Cyan = 191,
+	Back_Yellow = 224
 };
 
 enum BuildingType
@@ -75,7 +86,9 @@ enum PhaseState {
 
 	BuildingPhase,
 	EnterProductionPhase,
-	ProductionPhase
+	ProductionPhase,
+	HardrainPhase,
+	EndingPhase
 };
 
 enum ErrorCode {
@@ -119,6 +132,8 @@ typedef struct {
 	short BuildingLeft;
 
 	Resources Res;
+
+	int Score;
 }City;
 
 typedef struct Rain{
@@ -128,7 +143,10 @@ typedef struct Rain{
 }Rain;
 
 void SplashScreen(void);
-void CharBlink(char toBlink, short show, short color);
+void MainMenu(short CursorPosition);
+void GameInfo(void);
+void Ranking(void);
+void Credit(void);
 
 void GameSetup(void);
 
@@ -137,10 +155,12 @@ void StoryDescriptor(void);
 void PAC(void);
 void CurPos(short x, short y);
 void CursorView(short show);
+void CharBlink(char toBlink, short show, short color);
 void K_Putchar(char toPrint[], short index);
 void StringColor(short color);
 char GetKeyDown(void);
 short ClockGenerator(short MilliSecond);
+unsigned int _stdcall BeepPlayer(void* Sound);
 
 void TypeAnimation(char toPrint[]);
 void DialogDisplay(char toPrint[]);
@@ -152,6 +172,7 @@ void GameInitialize(short GamePhase);
 void BuildingHeight(void);
 void AvailableBuilding(Buildings Buil);
 void ResourceDisplayer(City City);
+void UserInfoDisplayer(City CityStr);
 void SystemMessage(short MessageType);
 void HardrainAlert(short Timer);
 
@@ -160,20 +181,23 @@ void UserPrint(short UserPosition);
 short BuildingConfirm(short BuildingType);
 
 void BuildingBuilder(City City);
+void BuildingRepair(City* CityPtr);
 void MakePower(short UserPosition, short Health);
 void MakeFactory(short UserPosition, short Health);
 void MakeResidence(short UserPosition, short Health);
 
 void DisplayShield(short DamagePoint);
 void MakeItRa1n(City* CityPtr, Rain* RainPtr);
-void RaserBeam(City* CityPtr, Rain* RainPtr);
+short RaserBeam(City* CityPtr, Rain* RainPtr);
+short PulseLauncher(City* CityPtr, Rain* RainPtr);
 
 int main(void) {
 
 	City CityStr = { .UserPosition = 0,
 		.Buil.PowerLeft = 4, .Buil.FactoryLeft = 4, .Buil.ResidenceLeft = 4,
 		.OccupyState = { Blank }, .Health = { Blank }, .BuildingLeft = 0,
-		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0 };
+		.Res.EnergyState = 0, .Res.TechnologyState = 0, .Res.CapitalState = 0,
+		.Score = 0 };
 
 	City* CityPtr = &CityStr;
 
@@ -189,7 +213,9 @@ int main(void) {
 
 	srand((unsigned int)time(NULL));
 
-	system("title Hard Rain Impact v1.0");
+	system("title Hard Rain Impact v1.2");
+
+	PlaySound(TEXT("Title.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
 
 	SplashScreen();
 
@@ -337,10 +363,17 @@ int main(void) {
 				DialogDisplay("Game Over... 사령관님, 도시가 전부 파괴되었습니다...");
 				return 0;
 			}
+			if (CityStr.Res.TechnologyState >= 150) {
 
-			HardrainAlert(10 - RainCounter);
+				GameState = EndingPhase;
+				continue;
+			}
 
-			if (UserInput == ' ') RaserBeam(CityPtr, RainPtr);
+			HardrainAlert(20 - RainCounter);
+
+			if (UserInput == ' ') CityStr.Score += 50 * RaserBeam(CityPtr, RainPtr);
+			else if (UserInput == 'p') CityStr.Score += 50 * PulseLauncher(CityPtr, RainPtr);
+			else if (UserInput == 'f') BuildingRepair(CityPtr);
 
 			if (MilliSecond == Tic) {
 
@@ -348,16 +381,27 @@ int main(void) {
 				else if (CityStr.OccupyState[CityStr.UserPosition] == Factory) CityStr.Res.TechnologyState += CityStr.Health[CityStr.UserPosition];
 				else if (CityStr.OccupyState[CityStr.UserPosition] == Residence) CityStr.Res.CapitalState += CityStr.Health[CityStr.UserPosition];
 
-				if (RainCounter < 10) ++RainCounter;
-				
-				if (RainCounter == 10) MakeItRa1n(CityPtr, RainPtr);
+				if (RainCounter < 20) ++RainCounter;
+
+				if (RainCounter == 20) {
+
+					CityStr.Score += 10;
+
+					MakeItRa1n(CityPtr, RainPtr);
+					GameInitialize(HardrainPhase);
+					UserInfoDisplayer(CityStr);
+				}
 			}
 
 			ResourceDisplayer(CityStr);
 			BuildingBuilder(CityStr);
 		}
+		else if (GameState == EndingPhase) {
 
-		if (GameState != ProductionPhase) SystemMessage(GameState);
+			
+		}
+
+		if (GameState != ProductionPhase && GameState != HardrainPhase) SystemMessage(GameState);
 
 		if (MilliSecond == Tic) {
 
@@ -366,7 +410,7 @@ int main(void) {
 
 		MilliSecond = ClockGenerator(MilliSecond);
 	}
-
+	
 	DialogDisplay("게임을 종료합니다... 나중에 다시 뵙겠습니다 사령관님.");
 
 	return 0;
@@ -374,67 +418,249 @@ int main(void) {
 
 void SplashScreen(void) {
 
-	system("mode con:cols=92 lines=24");
+	short CursorPosition = 0;
+	short IsSkipped = 0;
+	char UserInput;
 
-	PlaySound(TEXT("Title.wav"), 0, SND_FILENAME | SND_ASYNC | SND_LOOP);
+	system("mode con:cols=92 lines=24");
 
 	CursorView(False);
 
-	StringColor(Red);
+	while (True) {
 
-	putchar('\n');
-	puts(":::    :::     :::     :::::::::  :::::::::   :::::::::      :::     ::::::::::: ::::    :::");
-	puts(":+:    :+:   :+: :+:   :+:    :+: :+:    :+:  :+:    :+:   :+: :+:       :+:     :+:+:   :+:");
-	puts("+:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+  +:+    +:+  +:+   +:+      +:+     :+:+:+  +:+");
-	puts("+#++:++#++ +#++:++#++: +#++:++#:  +#+    +:+  +#++:++#:  +#++:++#++:     +#+     +#+ +:+ +#+");
-	puts("+#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+  +#+    +#+ +#+     +#+     +#+     +#+  +#+#+#");
-	puts("#+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#    #+# #+#     #+#     #+#     #+#   #+#+#");
-	puts("###    ### ###     ### ###    ### #########   ###    ### ###     ### ########### ###    ####");
-	putchar('\n');
-	puts("          ::::::::::: ::::    ::::  :::::::::      :::      ::::::::  :::::::::::");
-	puts("              :+:     +:+:+: :+:+:+ :+:    :+:   :+: :+:   :+:    :+:     :+:    ");
-	puts("              +:+     +:+ +:+:+ +:+ +:+    +:+  +:+   +:+  +:+            +:+    ");
-	puts("              +#+     +#+  +:+  +#+ +#++:++#+  +#++:++#++: +#+            +#+    ");
-	puts("              +#+     +#+       +#+ +#+        +#+     +#+ +#+            +#+    ");
-	puts("              #+#     #+#       #+# #+#        #+#     #+# #+#    #+#     #+#    ");
-	puts("          ########### ###       ### ###        ###     ###  ########      ###    ");
+		CurPos(0, 0);
 
-	for (int i = 0;; ++i) {
+		StringColor(Red);
 
-		CurPos(2, 10);
-		CharBlink('+', i % 2, Red);
+		putchar('\n');
+		puts(":::    :::     :::     :::::::::  :::::::::   :::::::::      :::     ::::::::::: ::::    :::");
+		puts(":+:    :+:   :+: :+:   :+:    :+: :+:    :+:  :+:    :+:   :+: :+:       :+:     :+:+:   :+:");
+		puts("+:+    +:+  +:+   +:+  +:+    +:+ +:+    +:+  +:+    +:+  +:+   +:+      +:+     :+:+:+  +:+");
+		puts("+#++:++#++ +#++:++#++: +#++:++#:  +#+    +:+  +#++:++#:  +#++:++#++:     +#+     +#+ +:+ +#+");
+		puts("+#+    +#+ +#+     +#+ +#+    +#+ +#+    +#+  +#+    +#+ +#+     +#+     +#+     +#+  +#+#+#");
+		puts("#+#    #+# #+#     #+# #+#    #+# #+#    #+#  #+#    #+# #+#     #+#     #+#     #+#   #+#+#");
+		puts("###    ### ###     ### ###    ### #########   ###    ### ###     ### ########### ###    ####");
+		putchar('\n');
+		puts("          ::::::::::: ::::    ::::  :::::::::      :::      ::::::::  :::::::::::");
+		puts("              :+:     +:+:+: :+:+:+ :+:    :+:   :+: :+:   :+:    :+:     :+:    ");
+		puts("              +:+     +:+ +:+:+ +:+ +:+    +:+  +:+   +:+  +:+            +:+    ");
+		puts("              +#+     +#+  +:+  +#+ +#++:++#+  +#++:++#++: +#+            +#+    ");
+		puts("              +#+     +#+       +#+ +#+        +#+     +#+ +#+            +#+    ");
+		puts("              #+#     #+#       #+# #+#        #+#     #+# #+#    #+#     #+#    ");
+		puts("          ########### ###       ### ###        ###     ###  ########      ###    ");
 
-		CurPos(86, 12);
-		CharBlink('+', i % 2, Red);
+		for (int i = 0; !IsSkipped; ++i) {
 
-		CurPos(4, 14);
-		CharBlink('*', i % 2, Red);
+			CurPos(2, 10);
+			CharBlink('+', i % 2, Red);
 
-		CurPos(84, 14);
-		CharBlink('*', i % 2, Red);
+			CurPos(86, 12);
+			CharBlink('+', i % 2, Red);
 
-		if (i % 2) StringColor(Black);
-		else StringColor(White);
+			CurPos(4, 14);
+			CharBlink('*', i % 2, Red);
 
-		CurPos(30, 20);
-		puts("▶ Press Any Key to Start ◀");
+			CurPos(84, 14);
+			CharBlink('*', i % 2, Red);
 
-		if (_kbhit())break;
+			if (i % 2) StringColor(Black);
+			else StringColor(White);
 
-		Sleep(500);
+			CurPos(30, 20);
+
+			puts("▶ Press Any Key to Start ◀");
+
+			if (_kbhit()) {
+
+				IsSkipped = 1;
+				char Dummy = _getch();
+			}
+
+			Sleep(500);
+		}
+
+		StringColor(White);
+
+		for (short i = 0; i < 28; ++i) {
+
+			CurPos(30 + i, 20);
+			putchar(' ');
+		}
+
+		if (_kbhit()) {
+
+			UserInput = _getch();
+
+			if (UserInput == 13) {
+
+				switch (CursorPosition) {
+
+				case 0:
+					return;
+
+				case 1:
+
+					GameInfo();
+					break;
+
+				case 2:
+
+					Ranking();
+					break;
+
+				case 3:
+
+					Credit();
+					break;
+
+				case 4:
+
+					exit(0);
+					break;
+				}
+			}
+
+			if (UserInput == -32) {
+
+				UserInput = _getch();
+
+				switch (UserInput) {
+
+				case UP:
+
+					if (CursorPosition > 0) --CursorPosition;
+					break;
+
+				case DOWN:
+
+					if (CursorPosition < 4) ++CursorPosition;
+					break;
+
+				default:
+					break;
+				}
+			}
+		}
+
+		MainMenu(CursorPosition);
+
+		Sleep(50);
 	}
-
-	StringColor(White);
-
-	char Dummy = _getch();
 }
 
-void CharBlink(char toBlink, short show, short color) {
+void MainMenu(short CursorPosition) {
 
-	StringColor(color);
-	if (show) putchar(toBlink);
-	else putchar(' ');
-	StringColor(White);
+	for (short i = 0; i < 5; ++i) {
+
+		CurPos(38, 17 + i);
+		putchar(' ');
+	}
+
+	CurPos(38, 17 + CursorPosition); putchar('>');
+
+	CurPos(40, 17); puts("게임  시작");
+	CurPos(40, 18); puts("게임  정보");
+	CurPos(42, 19); puts("랭  킹");
+	CurPos(42, 20); puts("크레딧");
+	CurPos(42, 21); puts("종  료");
+}
+
+void GameInfo(void) {
+
+	system("cls");
+
+
+
+	system("cls");
+
+	return;
+}
+
+void Ranking(void) {
+
+	system("cls");
+
+	system("cls");
+
+	return;
+}
+
+void Credit(void) {
+
+	char UserInput;
+
+	system("cls");
+
+	for (short i = 0; i < 42; ++i) {
+
+		if (_kbhit()) if (_getch() != 13)break;
+
+		system("cls");
+
+		if (23 - i < 24 && 23 - i >= 0) {
+			CurPos(35, 23 - i); puts("[HARD RAIN IMPACT]");
+		}
+		if (24 - i < 24 && 24 - i >= 0) {
+			CurPos(0, 24 - i); puts("");
+		}
+		if (25 - i < 24 && 25 - i >= 0) {
+			CurPos(28, 25 - i); puts("Proudly Present This Game To You");
+		}
+		if (26 - i < 24 && 26 - i >= 0) {
+			CurPos(0, 26 - i); puts("");
+		}
+		if (27 - i < 24 && 27 - i >= 0) {
+			CurPos(42, 27 - i); puts("B Y");
+		}
+		if (28 - i < 24 && 28 - i >= 0) {
+			CurPos(0, 28 - i); puts("");
+		}
+		if (29 - i < 24 && 29 - i >= 0) {
+			CurPos(38, 29 - i); puts("Sungha Choi");
+		}
+		if (30 - i < 24 && 30 - i >= 0) {
+			CurPos(0, 30 - i); puts("");
+		}
+		if (31 - i < 24 && 31 - i >= 0) {
+			CurPos(41, 31 - i); puts("<DEV>");
+		}
+		if (32 - i < 24 && 32 - i >= 0) {
+			CurPos(0, 32 - i); puts("");
+		}
+		if (33 - i < 24 && 33 - i >= 0) {
+			CurPos(38, 33 - i); puts("Sungha Choi");
+		}
+		if (34 - i < 24 && 34 - i >= 0) {
+			CurPos(0, 34 - i); puts("");
+		}
+		if (35 - i < 24 && 35 - i >= 0) {
+			CurPos(41, 35 - i); puts("<OST>");
+		}
+		if (36 - i < 24 && 36 - i >= 0) {
+			CurPos(0, 36 - i); puts("");
+		}
+		if (37 - i < 24 && 37 - i >= 0) {
+			CurPos(24, 37 - i); puts("Megadeth - Dystopia (8-Bit Edit by WERC85)");
+		}
+		if (38 - i < 24 && 38 - i >= 0) {
+			CurPos(0, 38 - i); puts("");
+		}
+		if (39 - i < 24 && 39 - i >= 0) {
+			CurPos(37, 39 - i); puts("<Main  Story>");
+		}
+		if (40 - i < 24 && 40 - i >= 0) {
+			CurPos(0, 40 - i); puts("");
+		}
+		if (41 - i < 24 && 41 - i >= 0) {
+			CurPos(34, 41 - i); puts("Prof. Hyo Sang Lim");
+		}
+
+		Sleep(300);
+	}
+
+	system("cls");
+
+	return;
 }
 
 void GameSetup(void) {
@@ -443,15 +669,23 @@ void GameSetup(void) {
 
 	system("cls");
 
-	puts("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-	puts("┃ 권장 화면 비율을 사용하시겠습니까? (매우 권장!) [Y/N]┃");
-	puts("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+	CurPos(16, 10); puts("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+	CurPos(16, 11); puts("┃ 권장 화면 비율을 사용하시겠습니까? (매우 권장!) [Y/N]┃");
+	CurPos(16, 12); puts("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
-	UserInput = _getch();
+	while (True) {
 
-	Beep(_C, 25);
+		UserInput = _getch();
 
-	if (UserInput == 'Y' || UserInput == 'y') system("mode con:cols=67 lines=24");
+		Beep((DWORD)_C, 100);
+
+		if (UserInput == 'Y' || UserInput == 'y') {
+
+			system("mode con:cols=67 lines=24");
+			break;
+		}
+		else if (UserInput == 'N' || UserInput == 'n') break;
+	}
 
 	system("cls");
 
@@ -459,11 +693,19 @@ void GameSetup(void) {
 	puts("┃ 스토리를 시청하시겠습니까? [Y/N]┃");
 	puts("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
-	UserInput = _getch();
+	while (True) {
 
-	Beep(_C, 25);
+		UserInput = _getch();
 
-	if (UserInput == 'Y' || UserInput == 'y') StoryDescriptor();
+		Beep((DWORD)_C, 100);
+
+		if (UserInput == 'Y' || UserInput == 'y') {
+
+			StoryDescriptor();
+			break;
+		}
+		else if (UserInput == 'N' || UserInput == 'n') break;
+	}
 }
 
 void StoryDescriptor(void) {
@@ -504,7 +746,7 @@ void PAC(void) {
 		Sleep(500);
 	}
 
-	Beep(_C, 25);
+	Beep((DWORD)_C, 100);
 
 	StringColor(White);
 
@@ -528,6 +770,14 @@ void CursorView(short show) {
 	ConsoleCursor.dwSize = 1;
 
 	SetConsoleCursorInfo(ConsoleHandle, &ConsoleCursor);
+}
+
+void CharBlink(char toBlink, short show, short color) {
+
+	StringColor(color);
+	if (show) putchar(toBlink);
+	else putchar(' ');
+	StringColor(White);
 }
 
 void K_Putchar(char toPrint[], short index) {
@@ -557,17 +807,32 @@ short ClockGenerator(short MilliSecond) {
 	return MilliSecond;
 }
 
+unsigned int _stdcall BeepPlayer(void* arg) {
+
+	Beep((DWORD)Morse, 100);
+
+	_endthreadex(0);
+
+	return 0;
+}
+
 void TypeAnimation(char toPrint[]) {
+
+	HANDLE hThread[1];
+	DWORD dwThreadID;
 
 	StringColor(Cyan);
 
 	for (short i = 0; toPrint[i]; i += 2) {
-		
+
+		hThread[0] = (HANDLE)_beginthreadex(NULL, 0, BeepPlayer, NULL, 0, (unsigned*)&dwThreadID);
+
+		if (hThread[0]) CloseHandle(hThread[0]);
+
 		if (toPrint[i] != ' ' && toPrint[i] != '.') {
 
 			K_Putchar(toPrint, i);
-			Beep(_G, 1);
-			Sleep(24);
+			Sleep(25);
 		}
 		else {
 
@@ -869,7 +1134,6 @@ void GameInitialize(short GamePhase) {
 	}
 	else if (GamePhase == ProductionPhase) {
 
-
 		CurPos(1, 0); printf("┏━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━┓");
 		CurPos(1, 1); printf("┃ "); StringColor(Yellow);
 		printf("발전소"); StringColor(White);
@@ -894,14 +1158,36 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 12); printf("┃         <신입 사령관을 위한 메모>         ┃");
 		CurPos(1, 13); printf("┃                                           ┃");
 		CurPos(1, 14); printf("┃    방금 건설이 완료됐다는 소식을 들었네   ┃");
-		CurPos(1, 15); printf("┃          자네가 좌우로 움직이면           ┃");
-		CurPos(1, 16); printf("┃         도착한 구역의 건물로부터          ┃");
-		CurPos(1, 17); printf("┃       고유한 자원을 획득할 수 있네        ┃");
-		CurPos(1, 18); printf("┃    필요한 자원을 효율적으로 모아보게      ┃");
-		CurPos(1, 19); printf("┃                                           ┃");
+		CurPos(1, 15); printf("┃           자네가 좌우로 움직이면          ┃");
+		CurPos(1, 16); printf("┃          도착한 구역의 건물로부터         ┃");
+		CurPos(1, 17); printf("┃        고유한 자원을 획득할 수 있네       ┃");
+		CurPos(1, 18); printf("┃     필요한 자원을 효율적으로 모아보게     ┃");
+		CurPos(1, 19); printf("┃        하드레인이 얼마 남지 않았네...     ┃");
 		CurPos(1, 20); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 
 		CurPos(0, 23);
+	}
+	else if (GamePhase == HardrainPhase) {
+
+		CurPos(1, 10); printf("┏━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━┳━━━━━━━┓");
+		CurPos(1, 11); printf("┃ ");
+		StringColor(Cyan); printf("LASER"); StringColor(White);
+		printf("┃ ");
+		StringColor(D_Yellow); printf("10 에너지"); StringColor(White);
+		printf("┃ 한 줄 공격┃ 발사┃  Space┃");
+		CurPos(1, 12); printf("┣━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━╋━━━━━━━┫");
+		CurPos(1, 13); printf("┃ ");
+		StringColor(Yellow); printf("PULSE"); StringColor(White);
+		printf("┃ ");
+		StringColor(D_Green); printf("35 자  본"); StringColor(White);
+		printf("┃ 가까운 3개┃ 발사┃   p   ┃");
+		CurPos(1, 14); printf("┣━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━╋━━━━━━━┫");
+		CurPos(1, 15); printf("┃ 수 리┃ 15 기  술┃ 한 층 수리┃ 수리┃   f   ┃");
+		CurPos(1, 16); printf("┣━━━━━━╋━━━━━━━━━━┻━━━┳━━━━━━━╋━━━━━┻━━━━━━━┫");
+		CurPos(1, 17); printf("┃ 도 시┃  0000000000  ┃ 사령관┃  0000000000 ┃");
+		CurPos(1, 18); printf("┣━━━━━━╋━━━━━━━━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━┫");
+		CurPos(1, 19); printf("┃ 점 수┃                                    ┃");
+		CurPos(1, 20); printf("┗━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
 	}
 }
 
@@ -997,6 +1283,13 @@ void ResourceDisplayer(City City) {
 	CurPos(0, 23);
 }
 
+void UserInfoDisplayer(City CityStr) {
+
+	CurPos(11, 17); printf("%10s", CityStr.Usr.CityName);
+	CurPos(34, 17); printf("%10s", CityStr.Usr.UserName);
+	CurPos(10, 19); printf("%14d", CityStr.Score);
+}
+
 void SystemMessage(short MessageType) {
 
 	CurPos(12, 8);
@@ -1081,14 +1374,14 @@ void HardrainAlert(short Timer) {
 
 	CurPos(12, 8);
 
-	for (short i = 0; i < 33; ++i)putchar(' ');
+	for (short i = 0; i < 33; ++i) putchar(' ');
 
 	CurPos(12, 8);
 
 	StringColor(Red);
 
 	if (Timer > 0)
-		printf("HardRain 까지 %2d초 남았습니다.", Timer);
+		printf("HardRain 까지 %2d초 남았습니다.", Timer / 2);
 	else
 		printf("Hard Rain Impact");
 
@@ -1124,17 +1417,17 @@ short BuildingConfirm(short BuildingType) {
 
 	if (BuildingType == Power && UserInput == 'e') {
 
-		Beep(_C, 25);
+		Beep((DWORD)_C, 100);
 		return True;
 	}
 	if (BuildingType == Factory && UserInput == 't') {
 
-		Beep(_D, 25);
+		Beep((DWORD)_D, 100);
 		return True;
 	}
 	if (BuildingType == Residence && UserInput == 'm') {
 
-		Beep(_E, 25);
+		Beep((DWORD)_E, 100);
 		return True;
 	}
 
@@ -1150,6 +1443,42 @@ void BuildingBuilder(City City) {
 		else if (City.OccupyState[i] == Factory) MakeFactory(i, City.Health[i]);
 		else if (City.OccupyState[i] == Residence) MakeResidence(i, City.Health[i]);
 	}
+}
+
+void BuildingRepair(City* CityPtr) {
+
+	if (CityPtr->Res.TechnologyState < 15) return;
+
+	switch (CityPtr->OccupyState[CityPtr->UserPosition]) {
+
+	case Blank:
+
+		return;
+
+	case Power:
+
+		if (CityPtr->Health[CityPtr->UserPosition] == PowerHeight) return;
+		++CityPtr->Health[CityPtr->UserPosition];
+		break;
+
+	case Factory:
+
+		if (CityPtr->Health[CityPtr->UserPosition] == FactoryHeight) return;
+		++CityPtr->Health[CityPtr->UserPosition];
+		break;
+
+	case Residence:
+
+		if (CityPtr->Health[CityPtr->UserPosition] == ResidenceHeight) return;
+		++CityPtr->Health[CityPtr->UserPosition];
+		break;
+
+	default:
+
+		return;
+	}
+
+	CityPtr->Res.TechnologyState -= 15;
 }
 
 void MakePower(short UserPosition, short Health) {
@@ -1225,7 +1554,11 @@ void DisplayShield(short DamagePoint) {
 
 	for (short i = 0; i < 12; ++i) {
 
-		if (i == DamagePoint) StringColor(Red);
+		if (i == DamagePoint) {
+
+			StringColor(Red);
+			Beep((DWORD)_C, 100);
+		}
 		else StringColor(Cyan);
 
 		CurPos(CityLeft + i, CityHeight - 4);
@@ -1321,9 +1654,12 @@ void MakeItRa1n(City* CityPtr, Rain* RainPtr) {
 	CurPos(0, 23);
 }
 
-void RaserBeam(City* CityPtr, Rain* RainPtr) {
+short RaserBeam(City* CityPtr, Rain* RainPtr) {
+
+	short DestroyCount = 0;
 
 	if (CityPtr->Res.EnergyState < 10) return;
+
 	CityPtr->Res.EnergyState -= 10;
 
 	for (short i = CityTop; i < 16; ++i) {
@@ -1333,7 +1669,7 @@ void RaserBeam(City* CityPtr, Rain* RainPtr) {
 		putchar(' ');
 	}
 
-	Beep(_E, 25);
+	Beep((DWORD)_E, 100);
 
 	Sleep(100);
 
@@ -1344,8 +1680,61 @@ void RaserBeam(City* CityPtr, Rain* RainPtr) {
 		putchar(' ');
 	}
 
+	if (RainPtr->IsStarExist[CityPtr->UserPosition]) ++DestroyCount;
+
 	RainPtr->IsStarExist[CityPtr->UserPosition] = False;
 	RainPtr->StarHeight[CityPtr->UserPosition] = 0;
 
 	CurPos(0, 23);
+
+	return DestroyCount;
+}
+
+short PulseLauncher(City* CityPtr, Rain* RainPtr) {
+
+	HANDLE hThread[1];
+	DWORD dwThreadID;
+
+	short DestroyCount = 0;
+
+	if (CityPtr->Res.CapitalState < 35) return -1;
+	CityPtr->Res.CapitalState -= 35;
+
+	for (short i = 0; i < 15; ++i) {
+
+		for (short j = 0; j < 12; ++j) {
+
+			CurPos(CityLeft + j, CityTop + (14 - i));
+			StringColor(Back_Yellow);
+			putchar(' ');
+
+			if (!RainPtr->IsStarExist[j]) continue;
+
+			if (RainPtr->StarHeight[j] == (14 - i)) {
+
+				RainPtr->StarHeight[j] = 0;
+				RainPtr->IsStarExist[j] = 0;
+				++DestroyCount;
+			}
+		}
+
+		hThread[0] = (HANDLE)_beginthreadex(NULL, 0, BeepPlayer, NULL, 0, (unsigned*)&dwThreadID);
+
+		if(hThread[0]) CloseHandle(hThread[0]);
+
+		Sleep(100);
+
+		for (short j = 0; j < 12; ++j) {
+
+			CurPos(CityLeft + j, CityTop + (14 - i));
+			StringColor(White);
+			putchar(' ');
+		}
+
+		if (DestroyCount == 3) break;
+	}
+
+	CurPos(0, 23);
+
+	return DestroyCount;
 }
