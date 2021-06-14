@@ -59,20 +59,25 @@ void GameInfo(void) {
 void Ranking(void) {
 
 	FILE* RankingData;
+
+	char FileLocation[] = "c:\\ProgramData\\AKKYU\\EscapeHR\\ranking.aku";
 	char FileLineBuffer[50];
+	char* FileSliceBuffer;
+	char* FileSliceLeft = NULL;
 	char NameList[5][11];
 	char CityList[5][11];
 	char ScoreList[5][16];
+	char ParityList[5];
 	short LinePosition = 0;
 	short LastRanking = 0;
 	short Separator = 0;
-	short SepPosition;
 	
 	memset(NameList, 0, sizeof(NameList));
 	memset(CityList, 0, sizeof(CityList));
 	memset(ScoreList, 0, sizeof(ScoreList));
+	memset(ParityList, 0, sizeof(ParityList));
 
-	fopen_s(&RankingData, "c:\\ProgramData\\AKKYU\\EscapeHR\\ranking.aku", "r");
+	fopen_s(&RankingData, FileLocation, "r");
 
 	system("cls");
 
@@ -91,50 +96,79 @@ void Ranking(void) {
 
 		while (!feof(RankingData)) {
 
+			Separator = 0;
+
 			memset(FileLineBuffer, 0, sizeof(FileLineBuffer));
 
 			fgets(FileLineBuffer, sizeof(FileLineBuffer), RankingData);
 
-			if (!FileLineBuffer[0])break;
+			FileSliceBuffer = strtok_s(FileLineBuffer, ":", &FileSliceLeft);
 
-			if (FileLineBuffer[strlen(FileLineBuffer) - 2] != 'a') {
+			while (FileSliceBuffer) {
 
-				CurPos(23, 1); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-				CurPos(23, 2); printf("┃       저장 데이터가 손상되었습니다...    ┃");
-				CurPos(23, 3); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
-				CurPos(23, 4); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
-				CurPos(23, 5); printf("┃         아무 키나 눌러서 돌아가기        ┃");
-				CurPos(23, 6); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+				switch (Separator) {
 
-				fclose(RankingData);
+				case 0:
 
-				char Dummy = getchar();
+					strcpy_s(NameList[LinePosition], sizeof(NameList[LinePosition]), FileSliceBuffer);
+					break;
 
-				return;
-			}
-			else {
+				case 1:
 
-				for (short i = 0; FileLineBuffer[i] != '\n'; ++i) {
+					strcpy_s(CityList[LinePosition], sizeof(CityList[LinePosition]), FileSliceBuffer);
+					break;
 
-					if (isspace(FileLineBuffer[i])) {
+				case 2:
 
-						SepPosition = i + 1;
-						++Separator;
-						continue;
+					strcpy_s(ScoreList[LinePosition], sizeof(CityList[LinePosition]), FileSliceBuffer);
+					break;
+
+				case 3:
+
+					ParityList[LinePosition] = *FileSliceBuffer;
+
+					if (ParityMaker(atoi(ScoreList[LinePosition])) != ParityList[LinePosition]) {
+
+						system("cls");
+
+						CurPos(23, 1); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+						CurPos(23, 2); printf("┃       저장 데이터가 손상되었습니다...    ┃");
+						CurPos(23, 3); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+						CurPos(23, 4); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+						CurPos(23, 5); printf("┃          아무 키나 눌러서 초기화         ┃");
+						CurPos(23, 6); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+						fclose(RankingData);
+
+						char Dummy = getchar();
+
+						int RmResult = remove(FileLocation);
+
+						if (RmResult == -1) {
+
+							system("cls");
+
+							printf("알 수 없는 오류 발생!\n아무 키나 눌러 게임을 강제 종료합니다...");
+
+							char Dummy = _getch();
+
+							exit(-1);
+						}
+
+						return;
 					}
 
-					if (Separator == 2 && FileLineBuffer[i] == 'a') break;
-
-					if (Separator == 0) NameList[LinePosition][i] = FileLineBuffer[i];
-					else if (Separator == 1 && i >= SepPosition) CityList[LinePosition][i - SepPosition] = FileLineBuffer[i];
-					else if (Separator == 2 && i >= SepPosition) ScoreList[LinePosition][i - SepPosition] = FileLineBuffer[i];
+					break;
 				}
 
-				SepPosition = 0;
-				Separator = 0;
-				++LinePosition;
+				FileSliceBuffer = strtok_s(NULL, ":", &FileSliceLeft);
+				++Separator;
 			}
+
+			++LinePosition;
 		}
+
+		--LinePosition;
 
 		CurPos(23, 1); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
 		CurPos(23, 2); printf("┃             상위 5위 Ranking             ┃");

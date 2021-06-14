@@ -1,4 +1,5 @@
 #pragma once
+#include "StructSet.h"
 
 void DisplayShield(short DamagePoint);
 void MakeItRa1n(City* CityPtr, Rain* RainPtr);

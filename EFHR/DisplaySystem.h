@@ -1,4 +1,5 @@
 #pragma once
+#include "StructSet.h"
 
 void SplashScreen(void);
 void PAC(void);

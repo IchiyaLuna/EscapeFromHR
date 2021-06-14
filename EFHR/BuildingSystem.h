@@ -1,4 +1,5 @@
 #pragma once
+#include "StructSet.h"
 
 short BuildingConfirm(short BuildingType);
 void BuildingRepair(City* CityPtr);

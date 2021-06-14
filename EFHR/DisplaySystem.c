@@ -371,9 +371,18 @@ void UserInfo(char UserName[]) {
 
 	printf("SYSTEM : %s 사령관님, 입력하신 이름이 맞습니까? [Y/N]", UserName);
 
-	UserInput = _getch();
+	while (True) {
 
-	if (UserInput == 'Y' || UserInput == 'y') return;
+		UserInput = _getch();
+
+		Beep((DWORD)_C, 100);
+
+		if (UserInput == 'Y' || UserInput == 'y') {
+
+			return;
+		}
+		else if (UserInput == 'N' || UserInput == 'n') break;
+	}
 
 	UserInfo(UserName);
 }
@@ -454,9 +463,18 @@ void CityInfo(char CityName[]) {
 
 	printf("SYSTEM : 사령관님, 입력하신 도시의 이름이 %s 입니까? [Y/N]", CityName);
 
-	UserInput = _getch();
+	while (True) {
 
-	if (UserInput == 'Y' || UserInput == 'y') return;
+		UserInput = _getch();
+
+		Beep((DWORD)_C, 100);
+
+		if (UserInput == 'Y' || UserInput == 'y') {
+
+			return;
+		}
+		else if (UserInput == 'N' || UserInput == 'n') break;
+	}
 
 	CityInfo(CityName);
 }

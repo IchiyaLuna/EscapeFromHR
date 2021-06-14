@@ -1,4 +1,5 @@
 #pragma once
+#include "StructSet.h"
 
 void CurPos(short x, short y);
 void CursorView(short show);
@@ -9,3 +10,5 @@ char GetKeyDown(void);
 short ClockGenerator(short MilliSecond);
 unsigned int _stdcall BeepPlayer(void* Sound);
 void TypeAnimation(char toPrint[]);
+char ParityMaker(int toTest);
+void RankingRecorder(City CityPtr);
