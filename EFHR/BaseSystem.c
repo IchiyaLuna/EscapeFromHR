@@ -103,10 +103,11 @@ void TypeAnimation(char toPrint[]) {
 char ParityMaker(int toTest) {
 
 	char Result = 0;
+	int Salt = 1;
 
 	while (toTest > 0) {
 
-		Result += toTest % 10;
+		Result += (toTest % 10) * Salt++;
 		toTest /= 10;
 	}
 

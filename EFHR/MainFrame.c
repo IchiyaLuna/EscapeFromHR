@@ -193,7 +193,7 @@ int main(void) {
 				system("cls");
 				DialogDisplay("Game Over... 사령관님, 도시가 전부 파괴되었습니다...");
 
-				return 0;
+				break;
 			}
 			if (CityStr.Res.TechnologyState >= 150) {
 
@@ -236,7 +236,7 @@ int main(void) {
 			DialogDisplay("인류의 다음 행선지는 어디일까요?");
 			DialogDisplay("고생하셨습니다 사령관님.");
 			
-			return 0;
+			break;
 		}
 
 		if (GameState != ProductionPhase && GameState != HardrainPhase) SystemMessage(GameState);
@@ -249,7 +249,7 @@ int main(void) {
 		MilliSecond = ClockGenerator(MilliSecond);
 	}
 	
-	DialogDisplay("아무 키나 눌러 사령관님의 기록을 후대에 남깁니다...");
+	DialogDisplay("아무 키나 눌러 사령관님의 기록을 후대에 남깁니다... (점수가 상위 5위에 들지 않았다면 기록되지 않습니다.)");
 	RankingRecorder(CityStr);
 	DialogDisplay("랭킹 저장이 완료되었습니다!");
 

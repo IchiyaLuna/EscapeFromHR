@@ -592,7 +592,7 @@ void UserInfoDisplayer(City CityStr) {
 
 	CurPos(10, 17); printf("%-10s", CityStr.Usr.CityName);
 	CurPos(33, 17); printf("%-10s", CityStr.Usr.UserName);
-	CurPos(10, 19); printf("%-14d", CityStr.Score);
+	CurPos(10, 19); printf("%d", CityStr.Score);
 }
 
 void GameInitialize(short GamePhase) {
@@ -686,6 +686,15 @@ void GameInitialize(short GamePhase) {
 	}
 	else if (GamePhase == HardrainPhase) {
 
+		FILE* RankingData;
+		
+		char FileLocation[] = "c:\\ProgramData\\AKKYU\\EscapeHR\\ranking.aku";
+		char FileLineBuffer[50];
+		char* FileSliceBuffer;
+		char* FileSliceLeft = NULL;
+		char ScoreString[16];
+		char ParityChar;
+
 		CurPos(1, 10); printf("┏━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━┳━━━━━━━┓");
 		CurPos(1, 11); printf("┃ ");
 		StringColor(Cyan); printf("LASER"); StringColor(White);
@@ -702,9 +711,66 @@ void GameInitialize(short GamePhase) {
 		CurPos(1, 15); printf("┃ 수 리┃ 15 기  술┃ 한 층 수리┃ 수리┃    f  ┃");
 		CurPos(1, 16); printf("┣━━━━━━╋━━━━━━━━━━┻━━━┳━━━━━━━╋━━━━━┻━━━━━━━┫");
 		CurPos(1, 17); printf("┃ 도 시┃ 0000000000   ┃ 사령관┃ 0000000000  ┃");
-		CurPos(1, 18); printf("┣━━━━━━╋━━━━━━━━━━━━━━┻━━━━━━━┻━━━━━━━━━━━━━┫");
-		CurPos(1, 19); printf("┃ 점 수┃                                    ┃");
-		CurPos(1, 20); printf("┗━━━━━━┻━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+		CurPos(1, 18); printf("┣━━━━━━╋━━━━━━━━━━━━━┳┻━━━━━━━┻┳━━━━━━━━━━━━┫");
+		CurPos(1, 19); printf("┃ 점 수┃             ┃ 최고점수┃            ┃");
+		CurPos(1, 20); printf("┗━━━━━━┻━━━━━━━━━━━━━┻━━━━━━━━━┻━━━━━━━━━━━━┛");
+
+		fopen_s(&RankingData, FileLocation, "r");
+
+		if (RankingData == NULL) {
+			CurPos(34, 19); printf("0");
+		}
+		else {
+
+			memset(FileLineBuffer, 0, sizeof(FileLineBuffer));
+
+			fgets(FileLineBuffer, sizeof(FileLineBuffer), RankingData);
+
+			FileSliceBuffer = strtok_s(FileLineBuffer, ":", &FileSliceLeft);
+
+			FileSliceBuffer = strtok_s(NULL, ":", &FileSliceLeft);
+
+			FileSliceBuffer = strtok_s(NULL, ":", &FileSliceLeft);
+
+			strcpy_s(ScoreString, sizeof(ScoreString), FileSliceBuffer);
+
+			FileSliceBuffer = strtok_s(NULL, ":", &FileSliceLeft);
+
+			ParityChar = *FileSliceBuffer;
+
+			if (ParityMaker(atoi(ScoreString)) != ParityChar) {
+
+				system("cls");
+
+				CurPos(23, 1); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+				CurPos(23, 2); printf("┃       저장 데이터가 손상되었습니다...    ┃");
+				CurPos(23, 3); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+				CurPos(23, 4); printf("┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+				CurPos(23, 5); printf("┃    아무 키나 눌러서 초기화 후 강제종료   ┃");
+				CurPos(23, 6); printf("┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛");
+
+				fclose(RankingData);
+
+				char Dummy = getchar();
+
+				int RmResult = remove(FileLocation);
+
+				if (RmResult == -1) {
+
+					system("cls");
+
+					printf("알 수 없는 오류 발생!\n아무 키나 눌러 게임을 강제 종료합니다...");
+
+					char Dummy = _getch();
+
+					exit(-1);
+				}
+
+				exit(-1);
+			}
+
+			CurPos(34, 19); printf("%d", atoi(ScoreString));
+		}
 	}
 }
 
