@@ -770,6 +770,7 @@ void GameInitialize(short GamePhase) {
 			}
 
 			CurPos(34, 19); printf("%d", atoi(ScoreString));
+			fclose(RankingData);
 		}
 	}
 }
